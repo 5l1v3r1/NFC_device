@@ -46,8 +46,45 @@
 #include <mac.h>
 #include <llc_connection.h>
 
+#include <fcntl.h>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
  struct mac_link *mac_link;
  nfc_device *device;
+
+ uint8_t * buffer = NULL;
+ int length = 0;
+
+char* read_file(const char* filename, size_t* length)
+{
+  int fd;
+  struct stat file_info;
+  char* buffer;
+
+  /* Open the file.  */
+  fd = open (filename, O_RDONLY);
+
+  /* Get information about the file.  */
+  fstat (fd, &file_info);
+  *length = file_info.st_size;
+  /* Make sure the file is an ordinary file.  */
+  if (!S_ISREG (file_info.st_mode)) {
+    /* It's not, so give up.  */
+    close (fd);
+    return NULL;
+  }
+
+  /* Allocate a buffer large enough to hold the file's contents.  */
+  buffer = (char*) malloc (*length);
+  /* Read the file into the buffer.  */
+  read (fd, buffer, *length);
+
+  /* Finish up.  */
+  close (fd);
+  return buffer;
+}
 
  static void
  stop_mac_link(int sig)
@@ -108,7 +145,16 @@ com_android_snep_service(void *arg)
   int ret;
   uint8_t ssap;
 
-  llc_connection_send(connection, frame, sizeof(frame));
+  if(buffer != NULL)
+  {
+	  printf("length : %d\n",length);
+	  llc_connection_send(connection, buffer, length);
+  }
+  else
+  {
+	  printf("sizeof(frame) : %d\n",sizeof(frame));
+	  llc_connection_send(connection, frame, sizeof(frame));
+  }
 
   ret = llc_connection_recv(connection, buf, sizeof(buf), &ssap);
   if(ret>0){
@@ -129,6 +175,18 @@ main(int argc, char *argv[])
   (void)argc;
   (void)argv;
 
+  printf("Start App.\n");
+  if(argv[1] != NULL)
+  {
+	  printf("Argv[1] : %s.\n",argv[1]);
+	  buffer = read_file(argv[1], &length);
+	  printf("Ndef Message : ");
+	  fflush(stdout);
+	  //buffer = (uint8_t *) malloc (sizeof(uint8_t) * (length+1));
+	  write(1,buffer, length);
+	  printf("\nNdef length : %d.\n",length);
+  }
+
   nfc_context *context;
   nfc_init(&context);
 
@@ -138,55 +196,69 @@ main(int argc, char *argv[])
   signal(SIGINT, stop_mac_link);
   atexit(bye);
 
+	printf("nfc_open()\n");
   if (!(device = nfc_open(context, NULL))) {
     errx(EXIT_FAILURE, "Cannot connect to NFC device");
   }
 
+	printf("llc_link_new()\n");
   struct llc_link *llc_link = llc_link_new();
   if (!llc_link) {
     errx(EXIT_FAILURE, "Cannot allocate LLC link data structures");
   }
 
+	printf("mac_link_new()\n");
   mac_link = mac_link_new(device, llc_link);
   if (!mac_link){
     errx(EXIT_FAILURE, "Cannot create MAC link");
   }
-  
+
   struct llc_service *com_android_npp;
+	printf("llc_service_new()\n");
   if (!(com_android_npp = llc_service_new(NULL, com_android_snep_service, NULL))){
     errx(EXIT_FAILURE, "Cannot create com.android.npp service");
   }
+
   llc_service_set_miu(com_android_npp, 512);
   llc_service_set_rw(com_android_npp, 2);
 
   int sap;
+	printf("llc_link_service_bind()\n");
   if ((sap = llc_link_service_bind(llc_link, com_android_npp, 0x20)) < 0)
     errx(EXIT_FAILURE, "Cannot bind service");
 
 //  struct llc_connection *con = llc_outgoing_data_link_connection_new_by_uri(llc_link, sap, "urn:nfc:sn:snep");
+	printf("llc_outgoing_data_link_connection_new()\n");
   struct llc_connection *con = llc_outgoing_data_link_connection_new(llc_link, sap, LLCP_SNEP_SAP);
   if (!con){
     errx(EXIT_FAILURE, "Cannot create llc_connection");
   }
 
+	printf("mac_link_activate_as_initiator()\n");
   if (mac_link_activate_as_initiator(mac_link) < 0) {
     errx(EXIT_FAILURE, "Cannot activate MAC link");
   }
 
+	printf("llc_connection_connect()\n");
   if (llc_connection_connect(con) < 0)
     errx(EXIT_FAILURE, "Cannot connect llc_connection");
 
+	printf("llc_connection_wait()\n");
   llc_connection_wait(con, NULL);
 
+	printf("llc_link_deactivate()\n");
   llc_link_deactivate(llc_link);
 
+	printf("mac_link_free()\n");
   mac_link_free(mac_link);
   llc_link_free(llc_link);
 
   nfc_close(device);
   device = NULL;
 
+	printf("llcp_fini()\n");
   llcp_fini();
   nfc_exit(context);
+  free(buffer);
   exit(EXIT_SUCCESS);
 }

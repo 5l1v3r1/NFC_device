@@ -73,7 +73,7 @@ int		 llcp_disconnect(struct llc_link *link);
 #define LLC_PAX_PDU_PROHIBITED 0x02
 
 #define LLCP_DEFAULT_RW 1
-#define LLCP_DEFAULT_MIU 128
+#define LLCP_DEFAULT_MIU 256
 
 /*
  * http://www.nfc-forum.org/specs/nfc_forum_assigned_numbers_register

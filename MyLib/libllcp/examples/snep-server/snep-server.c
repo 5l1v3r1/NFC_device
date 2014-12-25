@@ -84,7 +84,7 @@ com_android_snep_thread(void *arg)
 {
   struct llc_connection *connection = (struct llc_connection *) arg;
   uint8_t buffer[1024], frame[1024];
-
+	printf("llc_connection_recv() \n");
   int len;
   if ((len = llc_connection_recv(connection, buffer, sizeof(buffer), NULL)) < 0)
     return NULL;
@@ -101,11 +101,14 @@ com_android_snep_thread(void *arg)
   }
   switch(buffer[1]){
     case 0x00:      /** Continue */
+	printf("case Continue\n");
       break;
     case 0x01:      /** GET */
+	printf("case GET\n");
       break;
     case 0x02:      /** PUT */
       {
+	printf("case PUT\n");
         uint32_t ndef_length = be32toh(*((uint32_t *)(buffer + 2)));  // NDEF length
         if ((len - 6) < ndef_length)
           return NULL; // Less received bytes than expected ?
@@ -117,6 +120,7 @@ com_android_snep_thread(void *arg)
         frame[3] = 0;
         frame[4] = 0;
         frame[5] = 0;
+	printf("llc_connection_send\n");
         llc_connection_send(connection, frame, 6);
 
         char ndef_msg[1024];
@@ -138,6 +142,7 @@ com_android_snep_thread(void *arg)
   }
 
   // TODO Stop the LLCP when this is reached
+	printf("llc_connection_stop\n");
   llc_connection_stop(connection);
   return NULL;
 }
@@ -209,6 +214,7 @@ main(int argc, char *argv[])
     errx(EXIT_FAILURE, "Cannot allocate LLC link data structures");
   }
 
+	printf("llc_service_new_with_uri`\n");
   struct llc_service *com_android_snep;
   if (!(com_android_snep = llc_service_new_with_uri(NULL, com_android_snep_thread, "urn:nfc:sn:snep", NULL)))
     errx(EXIT_FAILURE, "Cannot create com.android.snep service");
@@ -216,20 +222,25 @@ main(int argc, char *argv[])
   llc_service_set_miu(com_android_snep, 512);
   llc_service_set_rw(com_android_snep, 2);
 
+	printf("llc_link_service_bind\n");
   if (llc_link_service_bind(llc_link, com_android_snep, LLCP_SNEP_SAP) < 0)
     errx(EXIT_FAILURE, "Cannot bind service");
 
+	printf("mac_link_new\n");
   mac_link = mac_link_new(device, llc_link);
   if (!mac_link)
     errx(EXIT_FAILURE, "Cannot create MAC link");
 
+	printf("mac_link_activate_as_target\n");
   if (mac_link_activate_as_target(mac_link) < 0) {
     errx(EXIT_FAILURE, "Cannot activate MAC link");
   }
 
   void *err;
+	printf("mac_link_wait\n");
   mac_link_wait(mac_link, &err);
 
+	printf("mac_link_free\n");
   mac_link_free(mac_link);
   llc_link_free(llc_link);
 

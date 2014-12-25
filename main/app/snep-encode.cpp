@@ -36,7 +36,7 @@ QTextStream out(stdout);
 QTextStream err(stderr);
 QTextStream info(stderr);
 
-QFile output;
+QFile output("receipt_nfc");
 
 typedef QList<NDEFRecord> NDEFRecordList;
 //typedef QList<char> SNEPFrame;
@@ -298,7 +298,7 @@ int createSnepMessage(char *filePath)
     }
     if (!output.isOpen())
     {
-        output.open ( stdout, QIODevice::WriteOnly );
+        output.open ( QIODevice::WriteOnly );
     }
 
     QByteArray NFCFrame;
