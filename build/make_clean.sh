@@ -2,5 +2,6 @@
 
 rm -r CMakeFiles/ CMakeCache.txt
 rm Makefile
-rm cpp-nfc
+rm nfc
 rm cmake_install.cmake
+rm .cproject .project

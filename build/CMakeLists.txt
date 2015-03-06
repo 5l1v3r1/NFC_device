@@ -1,16 +1,16 @@
 cmake_minimum_required(VERSION 2.8)
 project(nfc)
 
-set(RZ_ROOT "../source")
+set(RZ_ROOT "../")
 message(status "** RZ_ROOT Include: ${RZ_ROOT}")
 #add_definitions(-DBOOST_ALL_NO_LIB)  # tell the compiler to undefine this boost macro
 
 SET(RZ_MAIN
-	${RZ_ROOT}/../monitor.cpp
+	${RZ_ROOT}/main/monitor.cpp
 )
 
 INCLUDE(
-	${RZ_ROOT}/lib.cmake
+	${RZ_ROOT}/thread/lib.cmake
 )
 
 FIND_PACKAGE (Threads REQUIRED )
