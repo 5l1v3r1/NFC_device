@@ -1,7 +1,7 @@
 SET(RZ_THREADAPI
-	${RZ_ROOT}/thread/tinythread.cpp
-	${RZ_ROOT}/thread/tinythread.h
-	${RZ_ROOT}/thread/fast_mutex.h	
+	${RZ_MYLIB}/thread/tinythread.cpp
+	${RZ_MYLIB}/thread/tinythread.h
+	${RZ_MYLIB}/thread/fast_mutex.h	
 )
 
 #file(GLOB SOURCES ${RZ_ROOT}/*.cpp ${RZ_ROOT}/*.h)

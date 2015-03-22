@@ -3,9 +3,9 @@
 
 #include <iostream>
 #include <list>
-#include "../thread/fast_mutex.h"
-#include "../thread/tinythread.h"
-
+#include "../MyLib/thread/fast_mutex.h"
+#include "../MyLib/thread/tinythread.h"
+#include "../MyLib/filesystem/fileApi.h"
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -72,11 +72,24 @@ void mainThread(void * aArg)
 				if (event->mask & IN_CREATE)
 				{
 					if (event->mask & IN_ISDIR)
+					{
 						cout << "The directory " << event->name
 						        << " was Created.\n" << endl;
+
+					}
 					else
+					{
+
+						char str[MAX_EXT_SIZE];
 						cout << "The file " << event->name
 						        << " was Created with WD " << event->wd << endl;
+						//FindExt(event->name, str);
+						if (!FindExt(event->name, str))
+						{
+							cout << "Ext : " << str << endl;
+						}
+
+					}
 				}
 
 				if (event->mask & IN_MODIFY)
@@ -112,15 +125,15 @@ int main(int argc, char *argv[])
 {
 #ifdef TEST_MUTEX
 	cout << endl << "Mutex locking (100 threads x 2 iterations)" << endl;
-// Clear the global counter.
+	// Clear the global counter.
 	gCount = 0;
 
-// Start a bunch of child threads
+	// Start a bunch of child threads
 	list<thread *> threadList;
 	for(int i = 0; i < 100; ++ i)
 	threadList.push_back(new thread(ThreadLock, 0));
 
-// Wait for the threads to finish
+	// Wait for the threads to finish
 	list<thread *>::iterator it;
 	for(it = threadList.begin(); it != threadList.end(); ++ it)
 	{
@@ -129,7 +142,7 @@ int main(int argc, char *argv[])
 		delete t;
 	}
 	`
-// Check the global count
+	// Check the global count
 	cout << " gCount = " << gCount << endl;
 #endif
 
