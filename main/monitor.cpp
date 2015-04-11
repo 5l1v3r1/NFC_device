@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <list>
+#include "monitor.h"
 #include "../MyLib/thread/fast_mutex.h"
 #include "../MyLib/thread/tinythread.h"
 #include "../MyLib/filesystem/fileApi.h"
@@ -123,6 +124,7 @@ void mainThread(void * aArg)
 // This is the main program (i.e. the main thread)
 int main(int argc, char *argv[])
 {
+	PR("Starting ...");
 #ifdef TEST_MUTEX
 	cout << endl << "Mutex locking (100 threads x 2 iterations)" << endl;
 	// Clear the global counter.
