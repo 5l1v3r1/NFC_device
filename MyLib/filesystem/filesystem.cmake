@@ -1,7 +1,7 @@
 SET(RZ_FILESYSTEMAPI
 	${RZ_MYLIB}/filesystem/_base.h
-	${RZ_MYLIB}/filesystem/fileApi.h
-	${RZ_MYLIB}/filesystem/fileApi.c
+	${RZ_MYLIB}/filesystem/FileApi.h
+	${RZ_MYLIB}/filesystem/FileApi.c
 )
 
 source_group("filesystem" FILES ${RZ_FILESYSTEMAPI})

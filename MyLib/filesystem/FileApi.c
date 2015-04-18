@@ -1,4 +1,4 @@
-#include "fileApi.h"
+#include "FileApi.h"
 
 int ReadFile(char * path, char** string)
 {
