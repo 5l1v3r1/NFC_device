@@ -46,11 +46,50 @@
 #include <mac.h>
 #include <llc_connection.h>
 
+#include <fcntl.h>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+typedef struct snepBuf{
+	char * buffer;
+	int length;
+}snepBuf;
+
  struct mac_link *mac_link;
  nfc_device *device;
 
- static void
- stop_mac_link(int sig)
+char* read_file(const char* filename, size_t* length)
+{
+  int fd;
+  struct stat file_info;
+  char* buffer;
+
+  /* Open the file.  */
+  fd = open (filename, O_RDONLY);
+
+  /* Get information about the file.  */
+  fstat (fd, &file_info);
+  *length = file_info.st_size;
+  /* Make sure the file is an ordinary file.  */
+  if (!S_ISREG (file_info.st_mode)) {
+    /* It's not, so give up.  */
+    close (fd);
+    return NULL;
+  }
+
+  /* Allocate a buffer large enough to hold the file's contents.  */
+  buffer = (char*) malloc (*length);
+  /* Read the file into the buffer.  */
+  read (fd, buffer, *length);
+
+  /* Finish up.  */
+  close (fd);
+  return buffer;
+}
+
+static void
+stop_mac_link(int sig)
  {
   (void) sig;
 
@@ -96,19 +135,32 @@ static void *
 com_android_snep_service(void *arg)
 {
   struct llc_connection *connection = (struct llc_connection *) arg;
+
+  snepBuf *snepBuffer = connection->user_data;
+  printf("Sending Ndef Message : ");
+  fflush(stdout);
+  write(1,snepBuffer->buffer, snepBuffer->length);
+
   uint8_t frame[] = {
-    0x10, 0x02,
-    0x00, 0x00, 0x00, 33,
-    0xd1, 0x02, 0x1c, 0x53, 0x70, 0x91, 0x01, 0x09, 0x54, 0x02,
-    0x65, 0x6e, 0x4c, 0x69, 0x62, 0x6e, 0x66, 0x63, 0x51, 0x01,
-    0x0b, 0x55, 0x03, 0x6c, 0x69, 0x62, 0x6e, 0x66, 0x63, 0x2e,
+	  //this is snep request frame
+	  // Version + Response + Length + Information
+    0x10, 0x02,				//version 10= Major(4) + Minor(4) Request Field: 02 = (Accept ndef massage) 
+    0x00, 0x00, 0x00, 33,		//  Length field = 33 bytes
+    0xd1, 0x02, 0x1c, 0x53, 0x70, 0x91, 0x01, 0x09, 0x54, 0x02,		//Information field
+    0x65, 0x6e, 0x4c, 0x69, 0x62, 0x6e, 0x66, 0x63, 0x51, 0x01,		//51 = START [MB][ME][CF][SR][IL][TNF] FRAME 
+																	//01 = RECORD TYPE
+																	//0b = PAYLOAD
+																	//55 = URI RECORD TYPE
+																	//03 = http://
+																	//THAN WHILE PAYLOAD FRAME (libnfc.org)
+    0x0b, 0x54, 0x02, 0x65, 0x6e, 0x62, 0x6e, 0x66, 0x63, 0x2e,
     0x6f, 0x72, 0x67
   };
   uint8_t buf[1024];
   int ret;
   uint8_t ssap;
 
-  llc_connection_send(connection, frame, sizeof(frame));
+  llc_connection_send(connection, snepBuffer->buffer, sizeof(snepBuffer->buffer));
 
   ret = llc_connection_recv(connection, buf, sizeof(buf), &ssap);
   if(ret>0){
@@ -126,8 +178,19 @@ com_android_snep_service(void *arg)
 int
 main(int argc, char *argv[])
 {
+  snepBuf *snepBuffer = (snepBuf *)malloc(sizeof(snepBuf));
   (void)argc;
   (void)argv;
+  snepBuffer->buffer = NULL;
+  snepBuffer->length = 0;
+  printf("Start App.\n");
+  printf("Argv[1] : %s.\n",argv[1]);
+
+  snepBuffer->buffer = read_file(argv[1], &(snepBuffer->length));
+  printf("Ndef Message : ");
+  fflush(stdout);
+  write(1, snepBuffer->buffer, snepBuffer->length);
+  printf("\nNdef length : %d.\n",snepBuffer->length);
 
   nfc_context *context;
   nfc_init(&context);
@@ -168,6 +231,7 @@ main(int argc, char *argv[])
   if (!con){
     errx(EXIT_FAILURE, "Cannot create llc_connection");
   }
+  con->user_data = snepBuffer;
 
   if (mac_link_activate_as_initiator(mac_link) < 0) {
     errx(EXIT_FAILURE, "Cannot activate MAC link");
@@ -188,5 +252,8 @@ main(int argc, char *argv[])
 
   llcp_fini();
   nfc_exit(context);
+  free(snepBuffer->buffer);
+  free(snepBuffer);
+  con->user_data = NULL;
   exit(EXIT_SUCCESS);
 }
