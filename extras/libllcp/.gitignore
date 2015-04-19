@@ -1,5 +1,3 @@
-*.o
-*.patch
 INSTALL
 Makefile
 Makefile.in
@@ -88,10 +86,3 @@ tools/llcp-test-server/connected-echo-server.o
 tools/llcp-test-server/connectionless-echo-server.o
 tools/llcp-test-server/llcp-test-server
 tools/llcp-test-server/llcp-test-server.o
-doc/data-link-connection-status.png
-examples/snep-client/.deps/
-examples/snep-client/.libs/
-examples/snep-client/snep-client
-examples/snep-server/.deps/
-examples/snep-server/.libs/
-examples/snep-server/snep-server
