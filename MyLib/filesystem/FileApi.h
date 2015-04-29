@@ -6,11 +6,11 @@ extern "C"
 #endif
 
 // C header here
-int ReadFile( char *path, char** str);
 int FindExt(char *fileName, char *str);
+int ReadFile( char *path, char** str);
 int IsFile(char *fileName);
 int MoveFile(char *destPath, char *sourcePath);
-
+NfcBool createDirectory(const char* path, __mode_t mode);
 #ifdef __cplusplus
 }
 #endif
