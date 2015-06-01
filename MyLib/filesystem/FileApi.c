@@ -140,3 +140,9 @@ int MoveFile(char *destPath, char *sourcePath)
 
 	return ret;
 }
+
+NfcBool createDirectory(const char* path, __mode_t mode)
+{
+	mkdir(path, mode);
+	return TRUE;
+}
