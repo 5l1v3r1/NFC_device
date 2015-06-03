@@ -1,20 +1,24 @@
 //// Reference: http://www.opensourceforu.com/2011/04/getting-started-with-inotify/
 //// Thread library TinyThread++ 1.1
+#if not defined(_WIN32) || defined(__WIN32__) || defined(__WINDOWS__)
+#include <sys/inotify.h>
+#include <unistd.h>
+#endif
 
 #include <iostream>
 #include <list>
 #include "monitor.h"
 #include "../MyLib/thread/fast_mutex.h"
 #include "../MyLib/thread/tinythread.h"
-#include "../MyLib/filesystem/fileApi.h"
+#include "../MyLib/filesystem/FileApi.h"
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/types.h>
-#include <sys/inotify.h>
+
 #include <limits.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
+
 
 using namespace std;
 using namespace tthread;
@@ -199,3 +203,4 @@ int main(int argc, char *argv[])
 	exit(0);
 
 }
+

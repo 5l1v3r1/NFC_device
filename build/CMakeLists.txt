@@ -6,7 +6,10 @@ message(status "** RZ_ROOT Include: ${RZ_ROOT}")
 #add_definitions(-DBOOST_ALL_NO_LIB)  # tell the compiler to define this boost macro
 
 SET(RZ_MAIN
-	${RZ_ROOT}/main/monitor.cpp
+	${RZ_ROOT}/main/main.cpp
+	${RZ_ROOT}/main/Inotify.cpp
+	${RZ_ROOT}/main/main.h
+	${RZ_ROOT}/main/Inotify.h
 )
 
 set(RZ_MYLIB "${RZ_ROOT}/MyLib")

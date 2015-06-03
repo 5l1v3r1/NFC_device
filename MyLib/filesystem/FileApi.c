@@ -1,4 +1,4 @@
-#include "fileApi.h"
+#include "FileApi.h"
 
 int ReadFile(char * path, char** string)
 {
@@ -139,4 +139,10 @@ int MoveFile(char *destPath, char *sourcePath)
 	remove(sourcePath);
 
 	return ret;
+}
+
+NfcBool createDirectory(const char* path, __mode_t mode)
+{
+	mkdir(path, mode);
+	return TRUE;
 }
