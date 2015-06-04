@@ -41,7 +41,7 @@ SOURCES += $$NDEF_SRCDIR/ndefrecord.cpp \
 unix: {
     # install library and headers
     isEmpty(PREFIX) {
-      PREFIX = /usr/local
+      PREFIX = /usr
     }
     target.path = $$PREFIX/lib
     INSTALLS += target
