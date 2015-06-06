@@ -68,7 +68,6 @@ void InotifyLoop(void *arg)
 								char str[128] = {"0"};
 								strcat(str,InotifyInfo.path);
 								strcat(str,event->name);
-//								ReadFile(str, buffer);
 							}
 						}
 
@@ -87,6 +86,35 @@ void InotifyLoop(void *arg)
 								<< "was Move to/from .." << event->wd << endl;
 					}
 				}
+				if (event->mask & IN_CLOSE)	// will be called only when a file is open and close and will event will raise no. of times using editer but using .c program will raise this event once file operation is finished only once 
+				{
+					if (event->mask & IN_ISDIR)
+					{
+						cout << "The directory " << event->name
+								<< " was CLOSE /from.\n" << endl;
+					}
+					else
+					{
+						cout << "The file " << event->name
+								<< "was CLOSE" << event->wd << endl;
+					///SendToNFC();
+					}
+				}
+				if (event->mask & IN_DELETE)	// will be called only when a file is open and close and will event will raise no. of times using editer but using .c program will raise this event once file operation is finished only once
+				{
+					if (event->mask & IN_ISDIR)
+					{
+						cout << "The directory " << event->name
+								<< " was IN_DELETE .\n" << endl;
+					}
+					else
+					{
+						cout << "The file " << event->name
+								<< "was IN_DELETE" << event->wd << endl;
+					///SendToNFC();
+					}
+				}
+
 			}
 
 			i += EVENT_SIZE + event->len;
