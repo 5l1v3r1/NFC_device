@@ -6,6 +6,7 @@ extern "C"
 #endif
 
 // C header here
+int CheckSum(char *string);
 int FindExt(char *fileName, char *str);
 int ReadFile( char *path, char** str);
 int IsFile(char *fileName);

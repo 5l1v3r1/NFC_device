@@ -11,8 +11,9 @@ extern "C"
 
 void InotifyLoop(void *arg)
 {
-	int length, i = 0;
+	int length = 0,  i = 0;
 	char buffer[BUF_LEN];
+	int prevCheckSum = 0;
 
 	inotifyFd InotifyInfo = *(inotifyFd *) arg;
 	printf(" buffer : %s \n", InotifyInfo.path);
@@ -21,6 +22,8 @@ void InotifyLoop(void *arg)
 	while (1)
 	{
 		i = 0;
+		length = 0;
+		buffer[0] = NULL;
 		length = read(InotifyInfo.fd, buffer, BUF_LEN);
 		if (length < 0)
 		{
@@ -48,6 +51,7 @@ void InotifyLoop(void *arg)
 				}
 				if (event->mask & IN_MODIFY)
 				{
+
 					if (event->mask & IN_ISDIR)
 					{
 						cout << "The directory " << event->name
@@ -65,9 +69,24 @@ void InotifyLoop(void *arg)
 							if(strcmp("txt", str) == 0)
 							{
 								char *buffer[1];
-								char str[128] = {"0"};
-								strcat(str,InotifyInfo.path);
+								char str[128];
+								int currentChSum = 0;
+								strcpy(str,InotifyInfo.path);
+								strcat(str,"/");
 								strcat(str,event->name);
+
+								ReadFile(str, buffer);
+
+								currentChSum = CheckSum(buffer[0]);
+								if(prevCheckSum != currentChSum)
+								{
+								prevCheckSum  = currentChSum;
+								printf("modify done \n");
+								break;
+								}
+
+
+//								ReadFile(str, buffer);
 							}
 						}
 
