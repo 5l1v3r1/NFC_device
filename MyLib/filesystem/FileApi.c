@@ -1,5 +1,19 @@
 #include "FileApi.h"
 
+
+int CheckSum(char *string)
+{
+	int sum =0;
+	int i = 0;
+
+	while(string[i])
+	{
+		sum +=string[i];
+		i++;
+	}
+
+	return sum;
+}
 int ReadFile(char * path, char** string)
 {
 

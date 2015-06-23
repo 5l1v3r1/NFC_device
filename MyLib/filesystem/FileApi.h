@@ -7,6 +7,7 @@ extern "C"
 
 // C header here
 int FindExt(char *fileName, char *str);
+int CheckSum(char *string);
 int ReadFile( char *path, char** str);
 int IsFile(char *fileName);
 int MoveFile(char *destPath, char *sourcePath);
