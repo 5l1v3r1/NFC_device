@@ -69,7 +69,7 @@ int FindExt(char *fileName, char *str)
 		}
 		str[i++] = *(ptr++);
 	}
-	str[i] = NULL;
+	str[i] = '\0';
 	return 0;
 }
 

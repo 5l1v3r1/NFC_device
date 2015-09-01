@@ -22,7 +22,7 @@ void InotifyLoop(void *arg)
 	{
 		i = 0;
 		length = 0;
-		buffer[0] = NULL;
+		buffer[0] = '\0';
 	
 		length = read(InotifyInfo.fd, buffer, BUF_LEN);
 		if (length < 0)
