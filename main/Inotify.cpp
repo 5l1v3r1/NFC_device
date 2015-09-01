@@ -22,7 +22,7 @@ void InotifyLoop(void *arg)
 	{
 		i = 0;
 		length = 0;
-		buffer[0] = '\0';
+		memset(buffer, '\0', sizeof(buffer));
 	
 		length = read(InotifyInfo.fd, buffer, BUF_LEN);
 		if (length < 0)
@@ -30,7 +30,7 @@ void InotifyLoop(void *arg)
 			cerr << "read" << endl;
 		}
 
-		cout << "Initial Length" << length << endl;
+		cout << "Initial Length :" << length << endl;
 		while (i < length)
 		{
 			struct inotify_event *event = (struct inotify_event *) &buffer[i];
