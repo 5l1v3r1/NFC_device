@@ -17,6 +17,10 @@ COMMAND="cmake"
 #$# for numbers of passed argument
 echo "$# Arguments : $@"
 
+if [ "$DEBUG" != "DEBUG" ]; then
+	DEBUG="RELEASE"
+fi
+
 COMMAND+=" -D CMAKE_BUILD_TYPE=$DEBUG -lpthread . "
 if [[ $@ == *"CDT"* ]]; then
 	echo "With Eclipse project."
@@ -30,4 +34,4 @@ fi
 echo "Execute Command : $COMMAND"
 
 eval $COMMAND
-echo "************************************************"
+echo "Done...!!"

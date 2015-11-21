@@ -86,10 +86,10 @@ void InotifyLoop(void *arg)
 									{
 										cout << "PID 0" << endl;
 										chdir("../main");
-										ret = system("export LLD_LIBRARY_PATH=\"../extras/libndef/libndef\"");
+										ret = system("export LD_LIBRARY_PATH=\"../extras/libndef/libndef\"");
 										if(ret == -1)
 										{
-											perror("unable to load export LD_LIBRARY_PATH=/home/ratnesh/programs/project/NFC_device/extras/libndef");
+											perror("unable to load export LD_LIBRARY_PATH=${PWD}/NFC_device/extras/libndef");
 										}
 										ret = system("./run.sh");
 										if(ret == -1)

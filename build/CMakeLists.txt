@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 project(nfc)
 
+include(${CMAKE_CURRENT_SOURCE_DIR}/../main/CMakeLists.txt)
+platform()
+
 set(RZ_ROOT "../")
 message(status "** RZ_ROOT Include: ${RZ_ROOT}")
 #add_definitions(-DBOOST_ALL_NO_LIB)  # tell the compiler to define this boost macro
@@ -18,6 +21,7 @@ INCLUDE(
 )
 
 FIND_PACKAGE (Threads REQUIRED )
+
 add_executable(nfc 
 	${RZ_MAIN} 
 	${RZ_THREADAPI}
