@@ -1,1 +1,71 @@
 Documentation:
+1) login using 
+username : pi 
+password : raspberry
+
+Connect board to internet...
+
+command : cd /home/pi
+command : sudo apt-get install cmake
+
+command : sudo apt-get update
+command : sudo apt-get install qt4-dev-tools
+command : sudo apt-get install libusb-dev libpcsclite-dev
+command : sudo apt-get install samba
+command : apt-get install autoconf libtool
+
+command : mkdir /home/pi/share
+command : sudo chmod -R 777 /home/pi/share
+
+put this below lines in /etc/samba/smb.conf
+and give /home/pi/share folder 777 permission
+
+[Public Share]
+comment = Guest access share
+path = /home/pi/share
+public = yes
+guest ok = yes
+browseable = yes
+writable = yes
+
+http://linux.alanstudio.hk/samba_public.htm
+
+* Set auto login:
+Change line in /etc/inititab
+COMMENT THIS LINE : T0:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100
+ADD THIS LINE : T0:23:respawn:/sbin/getty --autologin {username} -L ttyAMA0 115200 vt100
+
+Reference:
+http://raspberrypi.stackexchange.com/questions/3873/auto-login-with-gui-disabled-in-raspbian
+
+* OFF GUI screen:
+command : sudo raspi-config
+select = Console text console,require login
+http://ask.xmodulo.com/disable-desktop-gui-raspberry-pi.html
+
+Libnfc :
+Follow this link for installing libnfc first.
+http://blog.iteadstudio.com/raspberry-pi-drives-itead-pn532-nfc-module-with-libnfc/
+
+command : git clone https://github.com/cooltronics/NFC_device.git
+compile NFD_Device/extra/libndef by commands
+command : qmake
+command : make
+command : sudo make install
+
+Libllcp :
+Its in NFC_device/MyLib/libllcp
+command : autoreconf -vis
+command : ./configure --prefix=/usr --enable-debug           // --enable-debug is optional
+command : make
+
+go to NFC_Device/build
+command : ./make_project.sh
+command : make
+
+Startup script :
+1. Copy script file start_nfc.sh from NFC_device/extra to /home/pi.
+2. check path in start_nfc.sh file.
+3. And copy NFC_device/extra/rc.local and paste to /etc
+
+
