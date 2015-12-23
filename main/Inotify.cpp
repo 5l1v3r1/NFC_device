@@ -36,8 +36,10 @@ void InotifyLoop(void *arg)
 			struct inotify_event *event = (struct inotify_event *) &buffer[i];
 			if (event->len)
 			{
+				cout << "checking Event" << endl;
 				if (event->mask & IN_CREATE)
 				{
+					cout << "IN create Event" << endl;
 					if (event->mask & IN_ISDIR)
 					{
 						cout << "The directory " << event->name
@@ -52,6 +54,7 @@ void InotifyLoop(void *arg)
 				}
 				if (event->mask & IN_MODIFY)
 				{
+					cout << "IN modify Event" << endl;
 					if (event->mask & IN_ISDIR)
 					{
 						cout << "The directory " << event->name
@@ -81,24 +84,28 @@ void InotifyLoop(void *arg)
 									prevCheckSum  = currentChSum;
 									pid_t pid,pid2;
 									int status;
+									//char *envp[] = { "LD_LIBRARY_PATH=../extra/libndef/libndef" , NULL};
 									pid = fork();
 									if(pid == 0)
 									{
 										cout << "PID 0" << endl;
 										chdir("../main");
-										ret = system("export LD_LIBRARY_PATH=\"../extras/libndef/libndef\"");
+										//ret = system("export LD_LIBRARY_PATH=\"../extras/libndef/libndef\"");
 										if(ret == -1)
 										{
 											perror("unable to load export LD_LIBRARY_PATH=${PWD}/NFC_device/extras/libndef");
 										}
 										ret = system("./run.sh");
+										cout << "./run.sh executing ret : " << ret << endl;
 										if(ret == -1)
 										{
-											perror("unable to load ./run.sh"); }
-											execlp("./snep-encode", "./snep-encode", str, "en-US", NULL);
-											perror("unable to load ./snep-encode");
-											exit(0);
+											perror("unable to load ./run.sh");
 										}
+										execlp("./snep-encode", "./snep-encode", str, "en-US", NULL);
+										//execve("./snep-encode", "./snep-encode", str, "en-US", NULL);
+										perror("unable to load ./snep-encode");
+										exit(-1);
+									}
 										pid = waitpid(pid, &status, 0);
 										if(pid == -1)
 										{
@@ -152,6 +159,7 @@ void InotifyLoop(void *arg)
 				}
 				if (event->mask & IN_MOVE)
 				{
+					cout << "IN move Event" << endl;
 					if (event->mask & IN_ISDIR)
 					{
 						cout << "The directory " << event->name
