@@ -7,7 +7,7 @@
 # make to compile project
 
 # Comment it for Release version build
-DEBUG="DEBUG"
+#DEBUG="DEBUG"
 
 FIRST_PARA="$1"
 SECOND_PARA="$2"

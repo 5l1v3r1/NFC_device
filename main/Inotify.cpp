@@ -84,25 +84,21 @@ void InotifyLoop(void *arg)
 									prevCheckSum  = currentChSum;
 									pid_t pid,pid2;
 									int status;
-									//char *envp[] = { "LD_LIBRARY_PATH=../extra/libndef/libndef" , NULL};
+									char *envp[] = { "LD_LIBRARY_PATH=../extra/libndef/libndef" , NULL};
+									char *arguments[] = {"./snep-encode", str, "en-US", NULL};
 									pid = fork();
 									if(pid == 0)
 									{
 										cout << "PID 0" << endl;
 										chdir("../main");
-										//ret = system("export LD_LIBRARY_PATH=\"../extras/libndef/libndef\"");
-										if(ret == -1)
-										{
-											perror("unable to load export LD_LIBRARY_PATH=${PWD}/NFC_device/extras/libndef");
-										}
 										ret = system("./run.sh");
 										cout << "./run.sh executing ret : " << ret << endl;
 										if(ret == -1)
 										{
 											perror("unable to load ./run.sh");
 										}
-										execlp("./snep-encode", "./snep-encode", str, "en-US", NULL);
-										//execve("./snep-encode", "./snep-encode", str, "en-US", NULL);
+										//execlpe("./snep-encode", "./snep-encode", str, "en-US", NULL, envp);
+										execve("./snep-encode", arguments, envp);
 										perror("unable to load ./snep-encode");
 										exit(-1);
 									}
