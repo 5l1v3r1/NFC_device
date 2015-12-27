@@ -73,7 +73,7 @@ int execute_app(struct inotify_event * event, inotifyFd InotifyInfo)
 					}
 
 				// send it to nfc through libllcp
-					int timeout = 15;
+					int timeout = 5;
 					pid2 = fork();
 					if(pid2 == 0)
 					{
@@ -121,7 +121,7 @@ int execute_app(struct inotify_event * event, inotifyFd InotifyInfo)
 						// In success it exit with : 0   (WEXITSTATUS(Stat))
 						if(WEXITSTATUS(Stat) == 1)
 						{
-							printf("Child work Unsuccessfull\n");
+							printf("Child work Unsuccessful\n");
 							// NDEF message not transmitted but program came back normally.
 							return CHILD_UNSUCCESSFUL;
 						}
@@ -207,13 +207,14 @@ void InotifyLoop(void *arg)
 						{
 							cout << "NDEF send : Fail" << endl;
 							globalCount++;
-							if(globalCount == 2) {
+							if(globalCount < 5) {
 								cout << "Sending again ..." << endl;
 								continue;
 							}
 							else {
 								cout << "Not Able to Send Data" << endl;
 								cout << "Mobile Not Detected" << endl;
+								globalCount = 0;
 							}
 						}
 #if 0
