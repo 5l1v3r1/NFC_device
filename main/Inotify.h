@@ -7,6 +7,9 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#define SEND_FAIL -1
+#define SEND_SUCCESS 0
+
 class Inotify
 {
 public:

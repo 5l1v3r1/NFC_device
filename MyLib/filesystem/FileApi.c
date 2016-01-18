@@ -1,3 +1,17 @@
+/** @FileApi.c
+ *  @File system related helper API.
+ *
+ *  These empty function definitions are provided
+ *  so that stdio will build without complaining.
+ *  You will need to fill these functions in. This
+ *  is the implementation of the console driver.
+ *  Important details about its implementation
+ *  should go in these comments.
+ *
+ *  @author  ()
+ *  @bug No know bugs.
+ */
+
 #include "FileApi.h"
 
 int CheckSum(char *string)
@@ -6,13 +20,11 @@ int CheckSum(char *string)
 	int i = 0;
 	while(string[i])
 	{
-		sum +=string[i];
+		sum += string[i];
 		i++;
 	}
 	return sum;
 }
-
-
 
 int ReadFile(char * path, char** string)
 {
@@ -50,6 +62,7 @@ int ReadFile(char * path, char** string)
 	return ret;
 }
 
+// Find
 int FindExt(char *fileName, char *str)
 {
 	char *ptr;

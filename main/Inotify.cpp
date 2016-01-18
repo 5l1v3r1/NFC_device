@@ -8,6 +8,131 @@ extern "C"
 {
 #endif
 
+int execute_app(struct inotify_event * event, inotifyFd InotifyInfo)
+{
+	int ret = 0;
+	char str[MAX_EXT_SIZE];
+	int prevCheckSum = 0;
+	if (!FindExt(event->name, str))
+	{
+		if(strcmp("txt", str) == 0)
+		{
+			cout << "Extention matched" << endl;
+			char *buffer[1];
+			char str[128] = {'\0'};
+			int currentChSum = 0;
+			strcpy(str,InotifyInfo.path);
+			strcat(str,"/");
+			strcat(str,event->name);
+			ReadFile(str, buffer);
+			//	cout << "Process Ext : " << str << endl;
+
+			// convert message to ndef format.
+			currentChSum = CheckSum(buffer[0]);
+			if(prevCheckSum != currentChSum)
+			{
+				prevCheckSum  = currentChSum;
+				pid_t pid, pid2;
+				int status;
+				char *env[] = { "LD_LIBRARY_PATH=../extra/libndef/libndef" , NULL};
+				pid = fork();
+				if(pid == 0)
+				{
+					cout << "Child run.sh started" << endl;
+					chdir("../main");
+
+					ret = system("./run.sh");
+					cout << "./run.sh executing ret : " << ret << endl;
+					if(ret == -1)
+					{
+						perror("unable to load ./run.sh");
+					}
+					//execlp("./snep-encode", "./snep-encode", str, "en-US", NULL);
+					execle("./snep-encode", "./snep-encode", str, "en-US", NULL, env);
+					perror("unable to load ./snep-encode");
+					exit(-1);
+				}
+					pid = waitpid(pid, &status, 0);
+					if(pid == -1)
+					{
+						perror("");
+						exit(2);
+					}
+
+					if(!WIFEXITED(status))
+					{
+							printf("snep-encode terminated abnormally");
+							exit(3);
+					}
+					if(WEXITSTATUS(status) != 0)
+					{
+						printf("snep-encode failed");
+						exit(3);
+					}
+
+				// send it to nfc through libllcp
+					int timeout = 10;
+					pid2 = fork();
+					if(pid2 == 0)
+					{
+						cout << "Child snep-client started timeout " << timeout << "Second" << endl;
+						chdir("../MyLib/libllcp");
+						execlp("./examples/snep-client/snep-client", "./examples/snep-client/snep-client", "../../main/receipt_nfc", NULL);
+						perror("unable to load ./snep-client from libllcp");
+						exit(0);
+					}
+
+					printf("The pid of the child is: %d\n", pid);
+					int waittime = 0;
+					int Stat;
+					int wpid = 0;
+					do {
+						wpid = waitpid(pid2, &Stat, WNOHANG);
+						if (wpid == 0) {
+							if (waittime < timeout) {
+								printf("Parent waiting %d second(s).\n", waittime);
+								sleep(1);
+								waittime ++;
+							}
+							else {
+								printf("Killing child process : %d\n", pid2);
+								kill(pid, SIGKILL);
+								break;
+							}
+						}
+					} while (wpid == 0 && waittime <= timeout);
+
+					if (WIFEXITED(Stat)) {
+						printf("Child exited, status = %d\n", WEXITSTATUS(Stat));
+						return SEND_SUCCESS;
+					}
+					else if (WIFSIGNALED(Stat)) {
+						printf("Child %d was terminated with a status of: %d \n", pid2, WTERMSIG(Stat));
+						return SEND_FAIL;
+					}
+//					pid2 = waitpid(pid2, &status, 0);
+//					if(pid2 == -1)
+//					{
+//						perror("");
+//						exit(2);
+//					}
+//
+//					if(!WIFEXITED(status))
+//					{
+//						printf("snep-encode terminated abnormally");
+//						exit(3);
+//					}
+//					if(WEXITSTATUS(status) != 0)
+//					{
+//						printf("snep-encode failed");
+//						exit(3);
+//					}
+					//return BREAK;
+			}
+		}
+	}
+}
+
 void InotifyLoop(void *arg)
 {
 	int length=0, i = 0;
@@ -43,7 +168,7 @@ void InotifyLoop(void *arg)
 					if (event->mask & IN_ISDIR)
 					{
 						cout << "The directory " << event->name
-								<< " was Created.\n" << endl;
+								<< " was Created" << endl;
 					}
 					else
 					{
@@ -58,58 +183,62 @@ void InotifyLoop(void *arg)
 					if (event->mask & IN_ISDIR)
 					{
 						cout << "The directory " << event->name
-								<< " was modified.\n" << endl;
+								<< " was modified" << endl;
 					}
 					else
 					{
+						cout << "The file " << event->name
+								<< " was modified with WD " << event->wd << endl;
+						ret = execute_app(event, InotifyInfo);
+						if(ret == SEND_FAIL)
+						{
+							break;
+						}
+#if 0
 						char str[MAX_EXT_SIZE];
 						if (!FindExt(event->name, str))
 						{
 							if(strcmp("txt", str) == 0)
 							{
-								char *buffer[1];
+								char *buffer[1] = NULL;
 								char str[128] = {'\0'};
 								int currentChSum = 0;
 								strcpy(str,InotifyInfo.path);
 								strcat(str,"/");
 								strcat(str,event->name);
 								ReadFile(str, buffer);
-//cout << "Process Ext : " << str << endl;
-///////////////////////////////////////////////////////////////////
+								//	cout << "Process Ext : " << str << endl;
+
 								// convert message to ndef format.
-								
 								currentChSum = CheckSum(buffer[0]);
 								if(prevCheckSum != currentChSum)
 								{
-									prevCheckSum  = currentChSum;
+									prevCheckSum = currentChSum;
 									pid_t pid,pid2;
 									int status;
-									//char *envp[] = { "LD_LIBRARY_PATH=../extra/libndef/libndef" , NULL};
+									char *env[] = { "LD_LIBRARY_PATH=../extra/libndef/libndef" , NULL};
 									pid = fork();
 									if(pid == 0)
 									{
 										cout << "PID 0" << endl;
 										chdir("../main");
-										//ret = system("export LD_LIBRARY_PATH=\"../extras/libndef/libndef\"");
-										if(ret == -1)
-										{
-											perror("unable to load export LD_LIBRARY_PATH=${PWD}/NFC_device/extras/libndef");
-										}
+
 										ret = system("./run.sh");
 										cout << "./run.sh executing ret : " << ret << endl;
 										if(ret == -1)
 										{
 											perror("unable to load ./run.sh");
 										}
-										execlp("./snep-encode", "./snep-encode", str, "en-US", NULL);
-										//execve("./snep-encode", "./snep-encode", str, "en-US", NULL);
+										//execlp("./snep-encode", "./snep-encode", str, "en-US", NULL);
+										execle("./snep-encode", "./snep-encode", str, "en-US", NULL, env);
 										perror("unable to load ./snep-encode");
 										exit(-1);
 									}
+
 										pid = waitpid(pid, &status, 0);
 										if(pid == -1)
 										{
-											perror("");
+											perror("snep-encode terminated waitpid fail");
 											exit(2);
 										}
 	
@@ -155,6 +284,7 @@ void InotifyLoop(void *arg)
 								}
 							}
 						}
+#endif
 					}
 				}
 				if (event->mask & IN_MOVE)
@@ -163,12 +293,12 @@ void InotifyLoop(void *arg)
 					if (event->mask & IN_ISDIR)
 					{
 						cout << "The directory " << event->name
-								<< " was Move to/from.\n" << endl;
+								<< " was Move to/from" << endl;
 					}
 					else
 					{
 						cout << "The file " << event->name
-								<< " was Move to/from .." << event->wd << endl;
+								<< " was Move to/from " << event->wd << endl;
 						char str[MAX_EXT_SIZE];
 
 #if 0

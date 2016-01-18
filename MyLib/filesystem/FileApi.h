@@ -5,7 +5,13 @@ extern "C"
 {
 #endif
 
-// C header here
+/** @brief Prints character ch with the specified color
+ *         at position (row, col).
+ *
+ *  @param row The row in which to display the character.
+ *  @param col The column in which to display the character.
+ *  @return Success or failure.
+ */
 int FindExt(char *fileName, char *str);
 int CheckSum(char *string);
 int ReadFile( char *path, char** str);
