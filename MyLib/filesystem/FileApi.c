@@ -16,7 +16,7 @@
 
 int CheckSum(char *string)
 {
-	int sum =0;
+	int sum = 0;
 	int i = 0;
 	while(string[i])
 	{

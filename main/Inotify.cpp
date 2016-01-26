@@ -55,7 +55,7 @@ int execute_app(struct inotify_event * event, inotifyFd InotifyInfo)
 					pid = waitpid(pid, &status, 0);
 					if(pid == -1)
 					{
-						perror("");
+						perror("waitpid fail for run.sh and snep-encode process.");
 						exit(2);
 					}
 
@@ -71,7 +71,7 @@ int execute_app(struct inotify_event * event, inotifyFd InotifyInfo)
 					}
 
 				// send it to nfc through libllcp
-					int timeout = 10;
+					int timeout = 15;
 					pid2 = fork();
 					if(pid2 == 0)
 					{
@@ -82,9 +82,9 @@ int execute_app(struct inotify_event * event, inotifyFd InotifyInfo)
 						exit(0);
 					}
 
-					printf("The pid of the child is: %d\n", pid);
+					printf("The pid of the child is: %d\n", pid2);
 					int waittime = 0;
-					int Stat;
+					int Stat = 0;
 					int wpid = 0;
 					do {
 						wpid = waitpid(pid2, &Stat, WNOHANG);
@@ -104,11 +104,11 @@ int execute_app(struct inotify_event * event, inotifyFd InotifyInfo)
 
 					if (WIFEXITED(Stat)) {
 						printf("Child exited, status = %d\n", WEXITSTATUS(Stat));
-						return SEND_SUCCESS;
+						return CHILD_SUCCESSFUL;
 					}
 					else if (WIFSIGNALED(Stat)) {
 						printf("Child %d was terminated with a status of: %d \n", pid2, WTERMSIG(Stat));
-						return SEND_FAIL;
+						return CHILD_SIGNALED;
 					}
 //					pid2 = waitpid(pid2, &status, 0);
 //					if(pid2 == -1)
@@ -135,7 +135,8 @@ int execute_app(struct inotify_event * event, inotifyFd InotifyInfo)
 
 void InotifyLoop(void *arg)
 {
-	int length=0, i = 0;
+	int length = 0;
+	int i = 0;
 	char buffer[BUF_LEN];
 	int ret = 0;
 	int prevCheckSum = 0;
@@ -152,10 +153,10 @@ void InotifyLoop(void *arg)
 		length = read(InotifyInfo.fd, buffer, BUF_LEN);
 		if (length < 0)
 		{
-			cerr << "read" << endl;
+			cerr << "read Event error" << endl;
 		}
 
-		cout << "Initial Length :" << length << endl;
+		cout << "Event Buffer Length : " << length << endl;
 		while (i < length)
 		{
 			struct inotify_event *event = (struct inotify_event *) &buffer[i];
@@ -175,7 +176,6 @@ void InotifyLoop(void *arg)
 						cout << "The file " << event->name
 								<< " was Created with WD " << event->wd << endl;
 					}
-
 				}
 				if (event->mask & IN_MODIFY)
 				{
@@ -190,9 +190,16 @@ void InotifyLoop(void *arg)
 						cout << "The file " << event->name
 								<< " was modified with WD " << event->wd << endl;
 						ret = execute_app(event, InotifyInfo);
-						if(ret == SEND_FAIL)
+						if(ret == CHILD_SUCCESSFUL)
 						{
+							cout << "NDEF send : Done" << endl;
 							break;
+						}
+						if(ret == CHILD_SIGNALED)
+						{
+							cout << "NDEF send : Fail" << endl;
+							cout << "Sending again ..." << endl;
+							continue;
 						}
 #if 0
 						char str[MAX_EXT_SIZE];
@@ -299,87 +306,6 @@ void InotifyLoop(void *arg)
 					{
 						cout << "The file " << event->name
 								<< " was Move to/from " << event->wd << endl;
-						char str[MAX_EXT_SIZE];
-
-#if 0
-						/*if (!FindExt(event->name, str))
-						{
-							if(strcmp("txt", str) == 0)
-							{
-								char *buffer[1];
-								char str[128] = {'\0'};
-								strcat(str,InotifyInfo.path);
-								strcat(str,"/");
-								strcat(str,event->name);
-								cout << "Process Ext : " << str << endl;
-///////////////////////////////////////////////////////////////////
-								// convert message to ndef format.
-								pid_t pid;
-								int status;
-								pid = fork();
-								if(pid == 0)
-								{
-									chdir("../main");
-									ret = system("export LLD_LIBRARY_PATH=\"../extras/libndef/libndef\"");
-									if(ret == -1)
-										{perror("unable to load export LD_LIBRARY_PATH=/home/ratnesh/programs/project/NFC_device/extras/libndef"); }
-									ret = system("./run.sh");
-									if(ret == -1)
-										{perror("unable to load ./run.sh"); }
-									execlp("./snep-encode", "./snep-encode", str, "en-US", NULL);
-									perror("unable to load ./snep-encode");
-									exit(0);
-								}
-								
-								pid = waitpid(pid, &status, 0);
-
-								if(pid == -1)
-								{
-									perror("");
-									exit(2);
-								}
-
-								if(!WIFEXITED(status))
-								{
-									printf("snep-encode terminated abnormally");
-									exit(3);
-								}
-								if(WEXITSTATUS(status) != 0)
-								{
-									printf("snep-encode failed");
-									exit(3);
-								}
-
-								// send it to nfc through libllcp
-                                pid = fork();
-                                if(pid == 0)
-                                {
-	                                chdir("../MyLib/libllcp");
-	                                execlp("./examples/snep-client/snep-client", "./examples/snep-client/snep-client", "../../main/receipt_nfc", NULL);
-	                                perror("unable to load ./snep-client from libllcp");
-	                                exit(0);
-	                            }
-                                pid = waitpid(pid, &status, 0);
-                                if(pid == -1)
-                                {
-                                    perror("");
-                                    exit(2);
-                                }
-                                if(!WIFEXITED(status))
-                                {
-	                                printf("snep-encode terminated abnormally");
-	                                exit(3);
-	                            }
-	                            if(WEXITSTATUS(status) != 0)
-	                            {
-		                            printf("snep-client failed");
-						            exit(3);
-					            }
-///////////////////////////////////////////////////////////////////
-//								ReadFile(str, buffer);
-							}
-						}*/
-#endif						
 					}
 				}
 			}

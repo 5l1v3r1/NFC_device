@@ -7,8 +7,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#define SEND_FAIL -1
-#define SEND_SUCCESS 0
+#define CHILD_SUCCESSFUL 0
+#define CHILD_SIGNALED 1
 
 class Inotify
 {
