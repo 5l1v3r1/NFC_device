@@ -11,9 +11,8 @@
 #define EVENT_SIZE  ( sizeof (struct inotify_event) ) /*size of one event*/
 #define BUF_LEN     ( MAX_EVENTS * ( EVENT_SIZE + LEN_NAME )) /*buffer to store the data of events*/
 
-typedef struct _inotifyFd
-{
+typedef struct _inotifyFd {
 	char *path;
 	int fd;
 	int wd;
-}inotifyFd;
+} inotifyFd;

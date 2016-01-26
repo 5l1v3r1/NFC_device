@@ -23,8 +23,6 @@
 #define MAX_STRING_LEN 255
 #define MAX_EXT_SIZE 64
 
- typedef enum _NfcBool
- {
-	FALSE = 0,
-	TRUE = 1,
- }NfcBool;
+typedef enum _NfcBool {
+	FALSE = 0, TRUE = 1,
+} NfcBool;

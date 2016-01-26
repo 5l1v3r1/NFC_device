@@ -7,8 +7,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-class Inotify
-{
+class Inotify {
 public:
 	Inotify();
 
