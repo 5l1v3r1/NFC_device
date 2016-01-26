@@ -8,6 +8,8 @@ extern "C"
 {
 #endif
 
+static int globalCount;
+
 int execute_app(struct inotify_event * event, inotifyFd InotifyInfo)
 {
 	int ret = 0;
@@ -75,7 +77,7 @@ int execute_app(struct inotify_event * event, inotifyFd InotifyInfo)
 					pid2 = fork();
 					if(pid2 == 0)
 					{
-						cout << "Child snep-client started timeout " << timeout << "Second" << endl;
+						cout << "Child snep-client started timeout " << timeout << " Second" << endl;
 						chdir("../MyLib/libllcp");
 						execlp("./examples/snep-client/snep-client", "./examples/snep-client/snep-client", "../../main/receipt_nfc", NULL);
 						perror("unable to load ./snep-client from libllcp");
@@ -96,7 +98,18 @@ int execute_app(struct inotify_event * event, inotifyFd InotifyInfo)
 							}
 							else {
 								printf("Killing child process : %d\n", pid2);
-								kill(pid, SIGKILL);
+								errno = kill(pid2, SIGKILL);
+								if(errno == ESRCH) {
+									printf("child process already killed\n");
+								}
+								if(errno == EPERM) {
+									printf("child process permission error\n");
+								}
+								wpid = waitpid(pid2, &Stat, WSTOPPED);
+								if(wpid == pid2)
+								{
+									printf("Child process : %d resource cleaned\n", wpid);
+								}
 								break;
 							}
 						}
@@ -104,30 +117,25 @@ int execute_app(struct inotify_event * event, inotifyFd InotifyInfo)
 
 					if (WIFEXITED(Stat)) {
 						printf("Child exited, status = %d\n", WEXITSTATUS(Stat));
-						return CHILD_SUCCESSFUL;
+						// In fail it exit with : 1 (WEXITSTATUS(Stat))
+						// In success it exit with : 0   (WEXITSTATUS(Stat))
+						if(WEXITSTATUS(Stat) == 1)
+						{
+							printf("Child work Unsuccessfull\n");
+							// NDEF message not transmitted but program came back normally.
+							return CHILD_UNSUCCESSFUL;
+						}
+						else if(WEXITSTATUS(Stat) == 0)
+						{
+							printf("Child work Done\n");
+							// Child transmitted NDEF successfully.
+							return CHILD_SUCCESSFUL;
+						}
 					}
 					else if (WIFSIGNALED(Stat)) {
 						printf("Child %d was terminated with a status of: %d \n", pid2, WTERMSIG(Stat));
 						return CHILD_SIGNALED;
 					}
-//					pid2 = waitpid(pid2, &status, 0);
-//					if(pid2 == -1)
-//					{
-//						perror("");
-//						exit(2);
-//					}
-//
-//					if(!WIFEXITED(status))
-//					{
-//						printf("snep-encode terminated abnormally");
-//						exit(3);
-//					}
-//					if(WEXITSTATUS(status) != 0)
-//					{
-//						printf("snep-encode failed");
-//						exit(3);
-//					}
-					//return BREAK;
 			}
 		}
 	}
@@ -195,11 +203,18 @@ void InotifyLoop(void *arg)
 							cout << "NDEF send : Done" << endl;
 							break;
 						}
-						if(ret == CHILD_SIGNALED)
+						if(ret == CHILD_SIGNALED || ret == CHILD_UNSUCCESSFUL)
 						{
 							cout << "NDEF send : Fail" << endl;
-							cout << "Sending again ..." << endl;
-							continue;
+							globalCount++;
+							if(globalCount == 2) {
+								cout << "Sending again ..." << endl;
+								continue;
+							}
+							else {
+								cout << "Not Able to Send Data" << endl;
+								cout << "Mobile Not Detected" << endl;
+							}
 						}
 #if 0
 						char str[MAX_EXT_SIZE];

@@ -7,8 +7,9 @@ extern "C"
 #endif
 
 #define CHILD_SUCCESSFUL 0
-#define CHILD_SIGNALED 1
-#define ABNORMALLY_EXITED 2
+#define CHILD_UNSUCCESSFUL 1
+#define CHILD_SIGNALED 2
+#define ABNORMALLY_EXITED 3
 
 int waitForProcess(int pid, int timeout, int wait);
 #ifdef __cplusplus

@@ -8,7 +8,8 @@
 #include <sys/wait.h>
 
 #define CHILD_SUCCESSFUL 0
-#define CHILD_SIGNALED 1
+#define CHILD_UNSUCCESSFUL 1
+#define CHILD_SIGNALED 2
 
 class Inotify
 {
