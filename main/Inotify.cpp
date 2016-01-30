@@ -9,7 +9,7 @@ extern "C" {
 
 static int globalCount;
 
-int executeApp(struct inotify_event * event, inotifyFd InotifyInfo) {
+int execute_app(struct inotify_event * event, inotifyFd InotifyInfo) {
 	int ret = 0;
 	char str[MAX_EXT_SIZE];
 	int prevCheckSum = 0;
@@ -65,7 +65,7 @@ int executeApp(struct inotify_event * event, inotifyFd InotifyInfo) {
 				}
 
 				// send it to nfc through libllcp
-				int timeout = 15;
+				int timeout = 5;
 				pid2 = fork();
 				if (pid2 == 0) {
 					cout << "Child snep-client started timeout " << timeout
@@ -78,7 +78,7 @@ int executeApp(struct inotify_event * event, inotifyFd InotifyInfo) {
 					exit(0);
 				}
 
-				printf("The pid of the child is: %d\n", pid2);
+				printf("Child PID : %d\n", pid2);
 				int waittime = 0;
 				int Stat = 0;
 				int wpid = 0;
@@ -114,7 +114,7 @@ int executeApp(struct inotify_event * event, inotifyFd InotifyInfo) {
 					// In fail it exit with : 1 (WEXITSTATUS(Stat))
 					// In success it exit with : 0   (WEXITSTATUS(Stat))
 					if (WEXITSTATUS(Stat) == 1) {
-						printf("Child work Unsuccessfull\n");
+						printf("Child work Unsuccessful\n");
 						// NDEF message not transmitted but program came back normally.
 						return CHILD_UNSUCCESSFUL;
 					}
@@ -180,7 +180,7 @@ void InotifyLoop(void *arg) {
 						cout << "The file " << event->name
 						        << " was modified with WD " << event->wd
 						        << endl;
-						ret = executeApp(event, InotifyInfo);
+						ret = execute_app(event, InotifyInfo);
 						if (ret == CHILD_SUCCESSFUL) {
 							cout << "NDEF send : Done" << endl;
 							break;
@@ -188,13 +188,14 @@ void InotifyLoop(void *arg) {
 						if (ret == CHILD_SIGNALED || ret == CHILD_UNSUCCESSFUL) {
 							cout << "NDEF send : Fail" << endl;
 							globalCount++;
-							if (globalCount == 2) {
+							if (globalCount < 5) {
 								cout << "Sending again ..." << endl;
 								continue;
 							}
 							else {
 								cout << "Not Able to Send Data" << endl;
 								cout << "Mobile Not Detected" << endl;
+								globalCount = 0;
 							}
 						}
 #if 0
