@@ -147,12 +147,12 @@ com_android_snep_service(void *arg)
 
   if(buffer != NULL)
   {
-	  printf("length : %d\n",length);
+	  printf("llcp data length : %d\n",length);
 	  llc_connection_send(connection, buffer, length);
   }
   else
   {
-	  printf("sizeof(frame) : %d\n",sizeof(frame));
+	  //printf("sizeof(frame) : %d\n",sizeof(frame));
 	  llc_connection_send(connection, frame, sizeof(frame));
   }
 
@@ -175,10 +175,10 @@ main(int argc, char *argv[])
   (void)argc;
   (void)argv;
 
-  printf("Start App.\n");
+  printf("llcp sending ...\n");
   if(argv[1] != NULL)
   {
-	  printf("Argv[1] : %s.\n",argv[1]);
+	  //printf("Argv[1] : %s.\n",argv[1]);
 	  buffer = read_file(argv[1], &length);
 	  printf("Ndef Message : ");
 	  fflush(stdout);
@@ -196,25 +196,21 @@ main(int argc, char *argv[])
   signal(SIGINT, stop_mac_link);
   atexit(bye);
 
-	printf("nfc_open()\n");
   if (!(device = nfc_open(context, NULL))) {
     errx(EXIT_FAILURE, "Cannot connect to NFC device");
   }
 
-	printf("llc_link_new()\n");
   struct llc_link *llc_link = llc_link_new();
   if (!llc_link) {
     errx(EXIT_FAILURE, "Cannot allocate LLC link data structures");
   }
 
-	printf("mac_link_new()\n");
   mac_link = mac_link_new(device, llc_link);
   if (!mac_link){
     errx(EXIT_FAILURE, "Cannot create MAC link");
   }
 
   struct llc_service *com_android_npp;
-	printf("llc_service_new()\n");
   if (!(com_android_npp = llc_service_new(NULL, com_android_snep_service, NULL))){
     errx(EXIT_FAILURE, "Cannot create com.android.npp service");
   }
@@ -223,40 +219,34 @@ main(int argc, char *argv[])
   llc_service_set_rw(com_android_npp, 2);
 
   int sap;
-	printf("llc_link_service_bind()\n");
   if ((sap = llc_link_service_bind(llc_link, com_android_npp, 0x20)) < 0)
     errx(EXIT_FAILURE, "Cannot bind service");
 
 //  struct llc_connection *con = llc_outgoing_data_link_connection_new_by_uri(llc_link, sap, "urn:nfc:sn:snep");
-	printf("llc_outgoing_data_link_connection_new()\n");
   struct llc_connection *con = llc_outgoing_data_link_connection_new(llc_link, sap, LLCP_SNEP_SAP);
   if (!con){
     errx(EXIT_FAILURE, "Cannot create llc_connection");
   }
 
-	printf("mac_link_activate_as_initiator()\n");
   if (mac_link_activate_as_initiator(mac_link) < 0) {
     errx(EXIT_FAILURE, "Cannot activate MAC link");
   }
 
-	printf("llc_connection_connect()\n");
   if (llc_connection_connect(con) < 0)
     errx(EXIT_FAILURE, "Cannot connect llc_connection");
 
-	printf("llc_connection_wait()\n");
+  printf("llc_connection_wait()\n");
   llc_connection_wait(con, NULL);
 
-	printf("llc_link_deactivate()\n");
   llc_link_deactivate(llc_link);
 
-	printf("mac_link_free()\n");
   mac_link_free(mac_link);
   llc_link_free(llc_link);
 
   nfc_close(device);
   device = NULL;
 
-	printf("llcp_fini()\n");
+  printf("llcp_fini()\n");
   llcp_fini();
   nfc_exit(context);
   free(buffer);

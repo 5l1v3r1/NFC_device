@@ -15,7 +15,7 @@ int execute_app(struct inotify_event * event, inotifyFd InotifyInfo) {
 	int prevCheckSum = 0;
 	if (!FindExt(event->name, str)) {
 		if (strcmp("txt", str) == 0) {
-			cout << "Extention matched" << endl;
+			//cout << "Extention matched" << endl;
 			char *buffer[1];
 			char str[128] = { '\0' };
 			int currentChSum = 0;
@@ -23,7 +23,7 @@ int execute_app(struct inotify_event * event, inotifyFd InotifyInfo) {
 			strcat(str, "/");
 			strcat(str, event->name);
 			ReadFile(str, buffer);
-			//	cout << "Process Ext : " << str << endl;
+			//cout << "Process Ext : " << str << endl;
 
 			// convert message to ndef format.
 			currentChSum = CheckSum(buffer[0]);
@@ -39,7 +39,6 @@ int execute_app(struct inotify_event * event, inotifyFd InotifyInfo) {
 					chdir("../main");
 
 					ret = system("./run.sh");
-					cout << "./run.sh executing ret : " << ret << endl;
 					if (ret == -1) {
 						perror("unable to load ./run.sh");
 					}
@@ -110,7 +109,7 @@ int execute_app(struct inotify_event * event, inotifyFd InotifyInfo) {
 				} while (wpid == 0 && waittime <= timeout);
 
 				if (WIFEXITED(Stat)) {
-					printf("Child exited, status = %d\n", WEXITSTATUS(Stat));
+					//printf("Child exited, status = %d\n", WEXITSTATUS(Stat));
 					// In fail it exit with : 1 (WEXITSTATUS(Stat))
 					// In success it exit with : 0   (WEXITSTATUS(Stat))
 					if (WEXITSTATUS(Stat) == 1) {
@@ -125,7 +124,7 @@ int execute_app(struct inotify_event * event, inotifyFd InotifyInfo) {
 					}
 				}
 				else if (WIFSIGNALED(Stat)) {
-					printf("Child %d was terminated with a status of: %d \n",
+					printf("Child %d was signaled with a status of: %d \n",
 					        pid2, WTERMSIG(Stat));
 					return CHILD_SIGNALED;
 				}
