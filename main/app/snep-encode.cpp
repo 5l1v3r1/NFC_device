@@ -259,10 +259,12 @@ int createSnepMessage(char *filePath)
     QList<NDEFRecordList> ndef_containers;
     QList<ndef_container_type> ndef_containers_type;
 
-    QByteArray libraryPath;
+    //QByteArray libraryPath("../extra/libndef/libndef");
     //qputenv("LD_LIBRARY_PATH", &libraryPath);
+    QByteArray libraryPath;
     libraryPath = qgetenv ( "LD_LIBRARY_PATH");
-    qDebug() << "snep-encode Library path : " << libraryPath;
+    qDebug() << "snep-encode Library path : ";
+    output.write(libraryPath);
 
     ndef_containers.append(NDEFRecordList());
     ndef_containers_type.append(NDEF_MESSAGE);

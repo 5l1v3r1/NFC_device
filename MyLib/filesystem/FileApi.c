@@ -1,23 +1,45 @@
+/** @FileApi.c
+ *  @brief File system related APIs
+ *
+ *  This file contains file operations
+ *
+ *  @author Ratnesh Zinzuwadia (ratnesh69)
+ *  @author Sandeep Yenugola (sandy)
+ *  @bug Testing require for detailed usage of it.
+ */
+
 #include "FileApi.h"
 
-int CheckSum(char *string) {
+/**
+ * To find checksum of file.
+ *
+ */
+int CheckSum(char *string)
+{
 	int sum = 0;
 	int i = 0;
-	while (string[i]) {
+	while(string[i])
+	{
 		sum += string[i];
 		i++;
 	}
 	return sum;
 }
 
-int ReadFile(char * path, char** string) {
+/**
+ * To read characters from file returned in char *
+ *
+ */
+int ReadFile(char * path, char** string)
+{
 
 	int bufferSize = 0, ret = 0;
 
 	FILE *f1;
 
 	f1 = fopen(path, "r");
-	if (f1 == NULL) {
+	if (f1 == NULL)
+	{
 		perror("error in opening file\n");
 		exit(EXIT_FAILURE);
 	}
@@ -31,9 +53,12 @@ int ReadFile(char * path, char** string) {
 
 	ret = fread(*string, 1, bufferSize, f1);
 
-	if (bufferSize == ret) {
+	if (bufferSize == ret)
+	{
 		printf("string: %s \n", *string);
-	} else {
+	}
+	else
+	{
 		printf("ret : %d !=  buffersize : %d \n", ret, bufferSize);
 	}
 	fclose(f1);
@@ -41,17 +66,25 @@ int ReadFile(char * path, char** string) {
 	return ret;
 }
 
-int FindExt(char *fileName, char *str) {
+/**
+ * Find File Extension
+ *
+ */
+int FindExt(char *fileName, char *str)
+{
 	char *ptr;
 	int i = 0;
 	ptr = strchr(fileName, '.');
-	if (ptr == NULL) {
+	if (ptr == NULL)
+	{
 		return -1;
 	}
 	ptr++;
 	i = 0;
-	while (*ptr) {
-		if (i == MAX_EXT_SIZE - 1) {
+	while (*ptr)
+	{
+		if (i == MAX_EXT_SIZE - 1)
+		{
 			break;
 		}
 		str[i++] = *(ptr++);
@@ -60,19 +93,32 @@ int FindExt(char *fileName, char *str) {
 	return 0;
 }
 
-int IsFile(char *fileName) {
+/**
+ * Check if it is fileor not
+ *
+ */
+int IsFile(char *fileName)
+{
 	DIR* directory = opendir(fileName);
 
-	if (directory != NULL) {
+	if (directory != NULL)
+	{
 		closedir(directory);
 		return 0;
-	} else {
+	}
+	else
+	{
 		printf("errno : %x\n", errno);
 		printf("%s is file.\n", fileName);
 	}
 }
 
-int MoveFile(char *destPath, char *sourcePath) {
+/**
+ * Move file to other place
+ *
+ */
+int MoveFile(char *destPath, char *sourcePath)
+{
 	int bufferSize = 0, ret = 0, sum = 0;
 	FILE *f1;
 	FILE *f2;
@@ -85,7 +131,8 @@ int MoveFile(char *destPath, char *sourcePath) {
 	dateandtime = localtime(&tv.tv_sec);
 
 	f1 = fopen(sourcePath, "r");
-	if (f1 == NULL) {
+	if (f1 == NULL)
+	{
 		perror("error in opening file\n");
 		exit(EXIT_FAILURE);
 	}
@@ -97,9 +144,12 @@ int MoveFile(char *destPath, char *sourcePath) {
 	rewind(f1);
 
 	ret = fread(string, 1, bufferSize, f1);
-	if (bufferSize == ret) {
+	if (bufferSize == ret)
+	{
 		printf("string: %s \n", string);
-	} else {
+	}
+	else
+	{
 		printf("ret : %d !=  buffersize : %d \n", ret, bufferSize);
 	}
 	fclose(f1);
@@ -114,13 +164,15 @@ int MoveFile(char *destPath, char *sourcePath) {
 	strcat(destPath, newFile);
 
 	f2 = fopen(destPath, "w");
-	if (f2 == NULL) {
+	if (f2 == NULL)
+	{
 		perror("error in opening file\n");
 		exit(EXIT_FAILURE);
 	}
 
 	ret = fwrite(string, 1, bufferSize, f2);
-	if (ret <= 0) {
+	if (ret <= 0)
+	{
 		perror("error in write file\n");
 		exit(EXIT_FAILURE);
 	}
@@ -131,7 +183,12 @@ int MoveFile(char *destPath, char *sourcePath) {
 	return ret;
 }
 
-NfcBool createDirectory(const char* path, __mode_t mode) {
+/**
+ * create Directory
+ *
+ */
+NfcBool createDirectory(const char* path, __mode_t mode)
+{
 	mkdir(path, mode);
 	return TRUE;
 }

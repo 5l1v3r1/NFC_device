@@ -8,6 +8,12 @@ set(RZ_ROOT "../")
 message(status "** RZ_ROOT Include: ${RZ_ROOT}")
 #add_definitions(-DBOOST_ALL_NO_LIB)  # tell the compiler to define this boost macro
 
+IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
+	message("Debug build.")
+ELSE()
+	message("Release build.")
+ENDIF()
+
 SET(RZ_MAIN
 	${RZ_ROOT}/main/main.cpp
 	${RZ_ROOT}/main/Inotify.cpp
@@ -26,6 +32,7 @@ add_executable(nfc
 	${RZ_MAIN} 
 	${RZ_THREADAPI}
 	${RZ_FILESYSTEMAPI}
+	${RZ_PROCESSAPI}
 )
 TARGET_LINK_LIBRARIES ( nfc ${CMAKE_THREAD_LIBS_INIT} )
 

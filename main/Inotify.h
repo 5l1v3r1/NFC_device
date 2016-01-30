@@ -7,7 +7,12 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-class Inotify {
+#define CHILD_SUCCESSFUL 0
+#define CHILD_UNSUCCESSFUL 1
+#define CHILD_SIGNALED 2
+
+class Inotify
+{
 public:
 	Inotify();
 

@@ -46,6 +46,7 @@ http://ask.xmodulo.com/disable-desktop-gui-raspberry-pi.html
 Libnfc :
 Follow this link for installing libnfc first.
 http://blog.iteadstudio.com/raspberry-pi-drives-itead-pn532-nfc-module-with-libnfc/
+command for libnvc debug: LIBNFC_LOG_LEVEL=3 ./examples/snep-client/snep-client ../../main/receipt_nfc
 
 command : git clone https://github.com/cooltronics/NFC_device.git
 compile NFD_Device/extra/libndef by commands

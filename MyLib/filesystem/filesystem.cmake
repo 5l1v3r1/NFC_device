@@ -1,5 +1,5 @@
 SET(RZ_FILESYSTEMAPI
-	${RZ_MYLIB}/filesystem/_base.h
+	${RZ_MYLIB}/_base.h
 	${RZ_MYLIB}/filesystem/FileApi.h
 	${RZ_MYLIB}/filesystem/FileApi.c
 )
