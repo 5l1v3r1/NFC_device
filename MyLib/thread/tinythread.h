@@ -155,7 +155,8 @@ namespace tthread {
 /// program may deadlock if the thread that owns a mutex object calls lock()
 /// on that object).
 /// @see recursive_mutex
-class mutex {
+class mutex
+{
 public:
 	/// Constructor.
 	mutex()
@@ -243,7 +244,8 @@ private:
 /// may lock the mutex several times, as long as it unlocks the mutex the same
 /// number of times).
 /// @see mutex
-class recursive_mutex {
+class recursive_mutex
+{
 public:
 	/// Constructor.
 	recursive_mutex() {
@@ -330,7 +332,8 @@ private:
 /// @endcode
 
 template<class T>
-class lock_guard {
+class lock_guard
+{
 public:
 	typedef T mutex_type;
 
@@ -379,7 +382,8 @@ private:
 ///   cond.notify_all();
 /// }
 /// @endcode
-class condition_variable {
+class condition_variable
+{
 public:
 	/// Constructor.
 #if defined(_TTHREAD_WIN32_)
@@ -462,7 +466,8 @@ private:
 };
 
 /// Thread class.
-class thread {
+class thread
+{
 public:
 #if defined(_TTHREAD_WIN32_)
 	typedef HANDLE native_handle_type;
@@ -554,7 +559,8 @@ private:
 /// Thread ID.
 /// The thread ID is a unique identifier for each thread.
 /// @see thread::get_id()
-class thread::id {
+class thread::id
+{
 public:
 	/// Default constructor.
 	/// The default constructed ID is that of thread without a thread of
@@ -617,7 +623,8 @@ typedef long long __intmax_t;
 
 /// Minimal implementation of the @c ratio class. This class provides enough
 /// functionality to implement some basic @c chrono classes.
-template<__intmax_t N, __intmax_t D = 1> class ratio {
+template<__intmax_t N, __intmax_t D = 1> class ratio
+{
 public:
 	static double _as_double() {
 		return double(N) / double(D);
@@ -629,7 +636,8 @@ public:
 namespace chrono {
 /// Duration template class. This class provides enough functionality to
 /// implement @c this_thread::sleep_for().
-template<class _Rep, class _Period = ratio<1> > class duration {
+template<class _Rep, class _Period = ratio<1> > class duration
+{
 private:
 	_Rep rep_;
 public:

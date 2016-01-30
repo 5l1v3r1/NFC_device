@@ -143,7 +143,8 @@ static thread::id _pthread_t_to_ID(const pthread_t &aHandle) {
 //------------------------------------------------------------------------------
 
 /// Information to pass to the new thread (what to run).
-struct _thread_start_info {
+struct _thread_start_info
+{
 	void (*mFunction)(void *); ///< Pointer to the function to be executed.
 	void * mArg;               ///< Function argument for the thread function.
 	thread * mThread;          ///< Pointer to the thread object.
@@ -162,7 +163,8 @@ void * thread::wrapper_function(void * aArg)
 	try {
 		// Call the actual client thread function
 		ti->mFunction(ti->mArg);
-	} catch (...) {
+	}
+	catch (...) {
 		// Uncaught exceptions will terminate the application (default behavior
 		// according to C++11)
 		std::terminate();

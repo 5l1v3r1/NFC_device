@@ -2,8 +2,7 @@
 #include <signal.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #define CHILD_SUCCESSFUL 0

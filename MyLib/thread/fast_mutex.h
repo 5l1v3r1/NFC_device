@@ -85,7 +85,8 @@ namespace tthread {
 /// PowerPC architectures on a limited number of compilers (GNU g++ and MS
 /// Visual C++).
 /// For other architectures/compilers, system functions are used instead.
-class fast_mutex {
+class fast_mutex
+{
 public:
 	/// Constructor.
 #if defined(_FAST_MUTEX_ASM_)

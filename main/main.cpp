@@ -8,12 +8,14 @@ int main(int argc, char *argv[]) {
 	if (argc < 2) {
 		cout << "Pass Folder Path as Second Argument." << endl;
 		exit(0);
-	} else {
+	}
+	else {
 		cout << argv[1] << endl;
 		if (stat(argv[1], &directoryStatus)
 		        == 0&& S_ISDIR(directoryStatus.st_mode)) {
 			cout << "Director found.\n" << endl;
-		} else {
+		}
+		else {
 			cout << "No directory found.\n Directory Created.\n" << endl;
 			createDirectory(argv[1], 0777);
 		}

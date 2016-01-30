@@ -14,36 +14,32 @@
  *  @param1 = pid of child process
  *  @param2 = timeout if want to put limit of execution for child process
  *  @param3 = wait = 1 (wait for process in blocking call)
-		   = 0 (wait for process till timeout happen or child exited)
+ = 0 (wait for process till timeout happen or child exited)
  *  @Returns	=  CHILD_SUCCESSFUL = If successful exit by child
  *				=  CHILD_SIGNALED	 = If child signaled after timeout
  */
-int waitForProcess(int pid, int timeout, int wait)
-{
+int waitForProcess(int pid, int timeout, int wait) {
 	printf("The pid of the child is: %d\n", pid);
 	int waittime = 0;
 	int stat = 0;
 	int wpid = 0;
 
-	if(wait == 1)
-	{
+	if (wait == 1) {
 		printf("Waiting for child to exit\n");
 		wpid = waitpid(pid, &stat, 0);
-		if(pid == -1)
-		{
+		if (pid == -1) {
 			perror("Child exited abnormally");
 			return ABNORMALLY_EXITED;
 		}
 	}
-	else if(wait == 0)
-	{
+	else if (wait == 0) {
 		do {
 			wpid = waitpid(pid, &stat, WNOHANG);
 			if (wpid == 0) {
 				if (waittime < timeout) {
 					printf("Parent waiting %d second(s).\n", waittime);
 					sleep(1);
-					waittime ++;
+					waittime++;
 				}
 				else {
 					printf("Killing child process : %d\n", pid);
@@ -53,8 +49,7 @@ int waitForProcess(int pid, int timeout, int wait)
 			}
 		} while (wpid == 0 && waittime <= timeout);
 	}
-	else
-	{
+	else {
 		perror("Pass wait argument as 0 OR 1\n");
 		return -1;
 	}
@@ -64,7 +59,8 @@ int waitForProcess(int pid, int timeout, int wait)
 		return CHILD_SUCCESSFUL;
 	}
 	else if (WIFSIGNALED(stat)) {
-		printf("Child %d was terminated with a status of: %d \n", pid, WTERMSIG(stat));
+		printf("Child %d was terminated with a status of: %d \n", pid,
+		        WTERMSIG(stat));
 		return CHILD_SIGNALED;
 	}
 }
