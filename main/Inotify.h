@@ -11,6 +11,10 @@
 #define CHILD_UNSUCCESSFUL 1
 #define CHILD_SIGNALED 2
 
+#define EXT_NOT_MATCH 3
+#define MESSAGE_REPEATED 4
+#define OTHER 9
+
 class Inotify
 {
 public:

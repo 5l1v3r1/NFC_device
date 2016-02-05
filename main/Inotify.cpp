@@ -129,7 +129,9 @@ int execute_app(struct inotify_event * event, inotifyFd InotifyInfo) {
 					return CHILD_SIGNALED;
 				}
 			}
+			return MESSAGE_REPEATED;
 		}
+		return EXT_NOT_MATCH;
 	}
 }
 
@@ -188,7 +190,7 @@ void InotifyLoop(void *arg) {
 							cout << "NDEF send : Fail" << endl;
 							globalCount++;
 							if (globalCount < 5) {
-								cout << "Sending again ..." << endl;
+								cout << "\nSending again ..." << endl;
 								continue;
 							}
 							else {
@@ -196,6 +198,14 @@ void InotifyLoop(void *arg) {
 								cout << "Mobile Not Detected" << endl;
 								globalCount = 0;
 							}
+						}
+						if (ret == EXT_NOT_MATCH) {
+							cout << "Extension not matched" << endl;
+							break;
+						}
+						if (ret == MESSAGE_REPEATED) {
+							cout << "Message repeated" << endl;
+							break;
 						}
 #if 0
 						char str[MAX_EXT_SIZE];

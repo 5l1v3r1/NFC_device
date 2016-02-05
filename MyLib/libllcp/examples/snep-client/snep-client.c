@@ -147,7 +147,6 @@ com_android_snep_service(void *arg)
 
   if(buffer != NULL)
   {
-	  printf("llcp data length : %d\n",length);
 	  llc_connection_send(connection, buffer, length);
   }
   else
@@ -175,7 +174,7 @@ main(int argc, char *argv[])
   (void)argc;
   (void)argv;
 
-  printf("llcp sending ...\n");
+  printf("\nllcp sending ...\n");
   if(argv[1] != NULL)
   {
 	  //printf("Argv[1] : %s.\n",argv[1]);
