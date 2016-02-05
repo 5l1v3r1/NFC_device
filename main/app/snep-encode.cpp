@@ -67,7 +67,7 @@ QString openFile(char *dataFilePath)
 	}
 	else
 	{
-		qDebug() << "ndef file ready:";
+		//qDebug() << "ndef file ready:";
 		QTextStream in(&file);
 		qint64 size = file.size();
 		while ( !in.atEnd() )
@@ -106,9 +106,9 @@ QByteArray createSnepFrame(QList<NDEFRecordList> ndefContainer,snepRequest opera
 	payload.append(length.byte[1]);
 	payload.append(length.byte[0]);
 	
-	qDebug() << "lenSet.lenth4byte : "<< length.lenth4byte;
-	qDebug ("length.byte[0]: %x \nlength.byte[1]: %x",length.byte[0],length.byte[1]);
-	qDebug ("length.byte[2]: %x \nlength.byte[3]: %x",length.byte[2],length.byte[3]);
+	//qDebug() << "lenSet.lenth4byte : "<< length.lenth4byte;
+	//qDebug ("length.byte[0]: %x \nlength.byte[1]: %x",length.byte[0],length.byte[1]);
+	//qDebug ("length.byte[2]: %x \nlength.byte[3]: %x",length.byte[2],length.byte[3]);
 	//qDebug() << "\n";
 
     // 4) ndef Payload.
@@ -261,10 +261,11 @@ int createSnepMessage(char *filePath)
 
     //QByteArray libraryPath("../extra/libndef/libndef");
     //qputenv("LD_LIBRARY_PATH", &libraryPath);
-    QByteArray libraryPath;
-    libraryPath = qgetenv ( "LD_LIBRARY_PATH");
-    qDebug() << "snep-encode Library path : ";
-    output.write(libraryPath);
+    //QByteArray libraryPath;
+    //libraryPath = qgetenv ( "LD_LIBRARY_PATH");
+    //qDebug() << "snep-encode Library path : " << libraryPath;
+    //output.write(libraryPath);
+    qDebug() << "\nsnep package creating ... ";
 
     ndef_containers.append(NDEFRecordList());
     ndef_containers_type.append(NDEF_MESSAGE);

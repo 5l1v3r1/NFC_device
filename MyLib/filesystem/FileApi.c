@@ -50,7 +50,7 @@ int ReadFile(char * path, char** string) {
 	ret = fread(*string, 1, bufferSize, f1);
 
 	if (bufferSize == ret) {
-		printf("string: %s \n", *string);
+		//printf("string: %s \n", *string);
 	}
 	else {
 		printf("ret : %d !=  buffersize : %d \n", ret, bufferSize);
