@@ -8,6 +8,7 @@ sudo chmod 777 /sys/class/leds/led0/trigger
 sudo chmod 777 /sys/class/leds/led0/brightness
 
 echo none > /sys/class/leds/led0/trigger
+sudo echo 0 > /sys/class/leds/led0/brightness
 
 cd /home/pi/NFC/NFC_device/build
 echo "start_nfc : current directory : ${PWD}"
