@@ -15,8 +15,8 @@
  *
  */
 int CheckSum(char *string) {
-	int sum = 0;
-	int i = 0;
+	unsigned int sum = 0;
+	unsigned int i = 0;
 	while (string[i]) {
 		sum += string[i];
 		i++;
@@ -169,6 +169,6 @@ int MoveFile(char *destPath, char *sourcePath) {
  *
  */
 NfcBool createDirectory(const char* path, __mode_t mode) {
-	mkdir(path, mode);
-	return TRUE;
+	int ret = mkdir(path, mode);
+	return ret == -1 ? FALSE : TRUE;
 }

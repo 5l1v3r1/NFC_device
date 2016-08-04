@@ -1,12 +1,10 @@
 #pragma once
 
-#include "main.h"
 #include <iostream>
 
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-//#include <mutex>
 
 #define CHILD_SUCCESSFUL 0
 #define CHILD_UNSUCCESSFUL 1
@@ -17,17 +15,3 @@
 #define OTHER 9
 
 #define DEFAULT_INOTIFY_PATH "./"
-class Inotify
-{
-public:
-	Inotify();
-	Inotify(char **argv);
-
-	int initialize();
-	int cleanup();
-	void mainThread(char **argv);
-
-private:
-	inotifyFd _InotifyInfo;
-	//std::mutex sVar;
-};

@@ -16,9 +16,9 @@ ENDIF()
 
 SET(RZ_MAIN
 	${RZ_ROOT}/main/main.cpp
-	${RZ_ROOT}/main/Inotify.cpp
-	${RZ_ROOT}/main/main.h
-	${RZ_ROOT}/main/Inotify.h
+	${RZ_ROOT}/main/mainIInterface.h
+	${RZ_ROOT}/main/IInterface.cc
+	${RZ_ROOT}/main/IInterface.h
 )
 
 set(RZ_MYLIB "${RZ_ROOT}/MyLib")

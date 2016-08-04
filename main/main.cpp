@@ -1,24 +1,54 @@
 // This is the main program (i.e. the main thread)
-#include "Inotify.h"
+#include "IInterface.h"
+#include <iostream>
 
 using namespace std;
-int main(int argc, char *argv[]) {
-	Inotify moniter;
-	struct stat directoryStatus;
+
+static Observer *monitor = NULL;
+
+void catch_signal(int signalNumber)
+{
+	cerr << "Caught exception" << endl;
+	/*
+	moniter->cleanup();
+	delete moniter;
+	moniter = NULL;
+	*/
+}
+
+int main(int argc, char *argv[])
+{
+	struct sigaction sigIntHandler;
+
+	sigIntHandler.sa_handler = catch_signal;
+	sigemptyset(&sigIntHandler.sa_mask);
+	sigIntHandler.sa_flags = 0;
+	sigaction(SIGINT, &sigIntHandler, NULL);
+
 	if (argc < 2) {
-		cout << "Pass Folder Path as Second Argument." << endl;
-		exit(0);
+		cout << DEFAULT_INOTIFY_PATH << "Taking default dictory as path" << endl;
+		monitor = new Observer();
 	}
 	else {
-		cout << argv[1] << endl;
-		if (stat(argv[1], &directoryStatus)
-		        == 0&& S_ISDIR(directoryStatus.st_mode)) {
-			cout << "Director found.\n" << endl;
-		}
-		else {
-			cout << "No directory found.\n Directory Created.\n" << endl;
-			createDirectory(argv[1], 0777);
-		}
+		monitor = new Observer(argv);
 	}
-	moniter.mainThread(argv);
+
+	try
+	{
+		int ret = 0;
+		Wifi dev;
+		monitor->Register(&dev);
+		monitor->initialize();
+		if(ret == 0)
+			monitor->CreateThread();
+	}
+	catch(...)
+	{
+		cerr << "Caught unexpected exception: " << endl;
+		monitor->cleanup();
+		delete monitor;
+		monitor = NULL;
+	}
+
+	return 0;
 }

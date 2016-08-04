@@ -27,6 +27,7 @@ int execute_app(struct inotify_event * event, inotifyFd InotifyInfo) {
 
 			// convert message to ndef format.
 			currentChSum = CheckSum(buffer[0]);
+			// check if message not repeated
 			if (prevCheckSum != currentChSum) {
 				prevCheckSum = currentChSum;
 				pid_t pid, pid2;
@@ -145,7 +146,8 @@ void InotifyLoop(void *arg) {
 	printf(" buffer : %s \n", InotifyInfo.path);
 
 	/*	do it forever*/
-	while (1) {
+	while (1)
+	{
 		i = 0;
 		length = 0;
 		memset(buffer, '\0', sizeof(buffer));
@@ -207,97 +209,6 @@ void InotifyLoop(void *arg) {
 							cout << "Message repeated" << endl;
 							break;
 						}
-#if 0
-						char str[MAX_EXT_SIZE];
-						if (!FindExt(event->name, str))
-						{
-							if(strcmp("txt", str) == 0)
-							{
-								char *buffer[1] = NULL;
-								char str[128] = {'\0'};
-								int currentChSum = 0;
-								strcpy(str,InotifyInfo.path);
-								strcat(str,"/");
-								strcat(str,event->name);
-								ReadFile(str, buffer);
-								//	cout << "Process Ext : " << str << endl;
-
-								// convert message to ndef format.
-								currentChSum = CheckSum(buffer[0]);
-								if(prevCheckSum != currentChSum)
-								{
-									prevCheckSum = currentChSum;
-									pid_t pid,pid2;
-									int status;
-									char *env[] = {"LD_LIBRARY_PATH=../extra/libndef/libndef" , NULL};
-									pid = fork();
-									if(pid == 0)
-									{
-										cout << "PID 0" << endl;
-										chdir("../main");
-
-										ret = system("./run.sh");
-										cout << "./run.sh executing ret : " << ret << endl;
-										if(ret == -1)
-										{
-											perror("unable to load ./run.sh");
-										}
-										//execlp("./snep-encode", "./snep-encode", str, "en-US", NULL);
-										execle("./snep-encode", "./snep-encode", str, "en-US", NULL, env);
-										perror("unable to load ./snep-encode");
-										exit(-1);
-									}
-
-									pid = waitpid(pid, &status, 0);
-									if(pid == -1)
-									{
-										perror("snep-encode terminated waitpid fail");
-										exit(2);
-									}
-
-									if(!WIFEXITED(status))
-									{
-										printf("snep-encode terminated abnormally");
-										exit(3);
-									}
-									if(WEXITSTATUS(status) != 0)
-									{
-										printf("snep-encode failed");
-										exit(3);
-									}
-
-									// send it to nfc through libllcp
-									pid2 = fork();
-									if(pid2 == 0)
-									{
-										cout << "PID 02" << endl;
-										chdir("../MyLib/libllcp");
-										execlp("./examples/snep-client/snep-client", "./examples/snep-client/snep-client", "../../main/receipt_nfc", NULL);
-										perror("unable to load ./snep-client from libllcp");
-										exit(0);
-									}
-									pid2 = waitpid(pid2, &status, 0);
-									if(pid2 == -1)
-									{
-										perror("");
-										exit(2);
-									}
-
-									if(!WIFEXITED(status))
-									{
-										printf("snep-encode terminated abnormally");
-										exit(3);
-									}
-									if(WEXITSTATUS(status) != 0)
-									{
-										printf("snep-encode failed");
-										exit(3);
-									}
-									break;
-								}
-							}
-						}
-#endif
 					}
 				}
 				if (event->mask & IN_MOVE) {
@@ -324,34 +235,74 @@ void InotifyLoop(void *arg) {
 Inotify::Inotify() {
 	_InotifyInfo.fd = 0;
 	_InotifyInfo.wd = 0;
-	_InotifyInfo.path = NULL;
+	_InotifyInfo.path = DEFAULT_INOTIFY_PATH;
+	cout << "Taking default path : " << _InotifyInfo.path << endl;
+}
+
+Inotify::Inotify(char **argv) {
+	_InotifyInfo.wd = 0;
+	_InotifyInfo.path = argv[1];
+	_InotifyInfo.fd = 0;
 
 }
 
-void Inotify::mainThread(char **argv) {
+int Inotify::initialize() {
+	struct stat directoryStatus;
+	{
+		cout << "Watch directory : " << _InotifyInfo.path << endl;
+		if (stat(_InotifyInfo.path, &directoryStatus)
+		        == 0 && S_ISDIR(directoryStatus.st_mode)) {
+			cout << "Director found.\n" << endl;
+		}
+		else {
+			cout << "No directory found.\n Creating Directory\n" << endl;
+			if(createDirectory(_InotifyInfo.path, 0777))
+			{
+				cerr << "Cannot able to create directory.\n" << endl;
+				return -1;
+			}
+		}
+	}
 
-	/*	 Initialize Inotify*/
-	_InotifyInfo.path = argv[1];
-	printf("%s : \n", _InotifyInfo.path);
-	_InotifyInfo.fd = inotify_init();
-	if (_InotifyInfo.fd < 0) {
-		cerr << "Couldn't initialize inotify" << endl;
+	/*	create one instance of inotify*/
+	if(_InotifyInfo.fd == 0)
+	{
+		_InotifyInfo.fd = inotify_init();
+		if (_InotifyInfo.fd < 0) {
+			cerr << "Couldn't initialize inotify" << endl;
+			return -1;
+		}
 	}
 
 	/*	add watch to starting directory*/
-	_InotifyInfo.wd = inotify_add_watch(_InotifyInfo.fd, argv[1],
-	IN_CREATE | IN_MODIFY | IN_DELETE | IN_OPEN | IN_MOVE | IN_CLOSE);
-	if (_InotifyInfo.wd == -1) {
-		cerr << "Couldn't add watch to " << argv[1] << endl;
+	if(_InotifyInfo.wd == 0)
+	{
+		_InotifyInfo.wd = inotify_add_watch(_InotifyInfo.fd, _InotifyInfo.path,
+		IN_CREATE | IN_MODIFY | IN_DELETE | IN_OPEN | IN_MOVE | IN_CLOSE);
+		if (_InotifyInfo.wd == -1) {
+			cerr << _InotifyInfo.path << " : Couldn't add to watch" << endl;
+			return -1;
+		}
+		else {
+			cout << "Watching:: " << _InotifyInfo.path << endl;
+		}
 	}
-	else {
-		cerr << "Watching:: " << argv[1] << endl;
-	}
+	return 0;
+}
+
+int Inotify::cleanup() {
+	/*	Clean up*/
+	int ret = inotify_rm_watch(_InotifyInfo.fd, _InotifyInfo.wd);
+	::close(_InotifyInfo.fd);
+	return ret;	
+}
+
+void Inotify::mainThread(char **argv) {
 	/*	Start the child thread*/
 	thread t(InotifyLoop, (void *) &_InotifyInfo);
 	t.join();
 	/*	Clean up*/
 	inotify_rm_watch(_InotifyInfo.fd, _InotifyInfo.wd);
-	close(_InotifyInfo.fd);
+	::close(_InotifyInfo.fd);
 }
 
