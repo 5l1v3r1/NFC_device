@@ -91,11 +91,10 @@ public:
 	/// Constructor.
 #if defined(_FAST_MUTEX_ASM_)
 	fast_mutex() :
-			mLock(0) {
+	mLock(0) {
 	}
 #else
-	fast_mutex()
-	{
+	fast_mutex() {
 #if defined(_TTHREAD_WIN32_)
 		InitializeCriticalSection(&mHandle);
 #elif defined(_TTHREAD_POSIX_)
@@ -106,8 +105,7 @@ public:
 
 #if !defined(_FAST_MUTEX_ASM_)
 	/// Destructor.
-	~fast_mutex()
-	{
+	~fast_mutex() {
 #if defined(_TTHREAD_WIN32_)
 		DeleteCriticalSection(&mHandle);
 #elif defined(_TTHREAD_POSIX_)
@@ -132,7 +130,7 @@ public:
 				sched_yield();
 #endif
 			}
-		} while (!gotLock);
+		}while (!gotLock);
 #else
 #if defined(_TTHREAD_WIN32_)
 		EnterCriticalSection(&mHandle);

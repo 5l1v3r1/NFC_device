@@ -5,4 +5,4 @@ SET(RZ_PROCESSAPI
 )
 
 source_group("process" FILES ${RZ_PROCESSAPI})
-message(status "** RZ_PROCESSAPI : ${RZ_PROCESSAPI}")
+message("RZ_PROCESSAPI : ${RZ_PROCESSAPI}")

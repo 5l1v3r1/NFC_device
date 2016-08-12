@@ -2,11 +2,26 @@ function(platform)
     message(STATUS "Platform ")
 
 IF(UNIX AND NOT WIN32)
-    message(STATUS "UNIX")
+    message(STATUS "-> UNIX")
 	FIND_PROGRAM( GCOV_PATH gcov )
 	FIND_PROGRAM( LCOV_PATH lcov )
 	FIND_PROGRAM( GENHTML_PATH genhtml )
 	FIND_PROGRAM( GCOVR_PATH gcovr PATHS ${CMAKE_SOURCE_DIR}/tests)
+
+	message("-- CMAKE_SYSTEM_INFO_FILE: ${CMAKE_SYSTEM_INFO_FILE}")
+	message("-- CMAKE_SYSTEM_NAME:      ${CMAKE_SYSTEM_NAME}")
+	message("-- CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
+	message("-- CMAKE_SYSTEM:           ${CMAKE_SYSTEM}")
+
+	FIND_PROGRAM( GCOV_PATH gcov )
+
+	IF(__ARM__)
+		add_definitions(-D__ARM__=${CMAKE_SYSTEM_VERSION})
+		message("Defined : __ARM__")
+	ELSE()
+		add_definitions(-D__x86__=${CMAKE_SYSTEM_VERSION})
+		message("Defined : __x86__")
+	ENDIF()
 
 #For release build
 	SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -fPIC")
@@ -20,7 +35,7 @@ IF(UNIX AND NOT WIN32)
 ENDIF()
 
 IF(MSVC)
-    message(STATUS "WINDOWS")
+    message(STATUS "-> WINDOWS")
 	# Use secure functions by defaualt and suppress warnings about
 	#"deprecated" functions
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ")

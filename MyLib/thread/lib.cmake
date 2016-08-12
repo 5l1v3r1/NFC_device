@@ -9,4 +9,4 @@ SET(RZ_THREADAPI
 #add_library( threads ${LIB_SOURCES} ${LIB_HEADERS} )
 
 source_group("threads" FILES ${RZ_THREADAPI})
-message(status "** RZ_THREADAPI : ${RZ_THREADAPI}")
+message( "RZ_THREADAPI : ${RZ_THREADAPI}")

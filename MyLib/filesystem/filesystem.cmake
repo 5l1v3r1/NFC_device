@@ -5,4 +5,4 @@ SET(RZ_FILESYSTEMAPI
 )
 
 source_group("filesystem" FILES ${RZ_FILESYSTEMAPI})
-message(status "** RZ_FILESYSTEMAPI : ${RZ_FILESYSTEMAPI}")
+message("RZ_FILESYSTEMAPI : ${RZ_FILESYSTEMAPI}")

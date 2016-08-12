@@ -7,6 +7,9 @@ SET(CMAKE_SYSTEM_VERSION 1)
 SET(CMAKE_C_COMPILER   /opt/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf-gcc)
 SET(CMAKE_CXX_COMPILER /opt/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf-g++)
 
+# specify macro for ARM cross compilation
+SET(__ARM__ 1)
+
 # where is the target environment 
 SET(CMAKE_FIND_ROOT_PATH  /opt/gcc-linaro-arm-linux-gnueabihf-raspbian /home/Training)
 

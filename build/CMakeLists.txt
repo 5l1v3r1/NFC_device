@@ -5,21 +5,24 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/../main/CMakeLists.txt)
 platform()
 
 set(RZ_ROOT "../")
-message(status "** RZ_ROOT Include: ${RZ_ROOT}")
+message("RZ_ROOT Include: ${RZ_ROOT}")
 #add_definitions(-DBOOST_ALL_NO_LIB)  # tell the compiler to define this boost macro
 
 IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
-	message("Debug build.")
+	message("--- Debug build ---")
 ELSE()
-	message("Release build.")
+	message("--- Release build ---")
 ENDIF()
 
 SET(RZ_MAIN
 	${RZ_ROOT}/main/main.cpp
 	${RZ_ROOT}/main/mainIInterface.h
-	${RZ_ROOT}/main/IInterface.cc
+	${RZ_ROOT}/main/IInterface.cpp
 	${RZ_ROOT}/main/IInterface.h
+	${RZ_ROOT}/main/Observer.cpp
+	${RZ_ROOT}/main/Observer.h
 )
+message("RZ_MAIN : ${RZ_MAIN}")
 
 set(RZ_MYLIB "${RZ_ROOT}/MyLib")
 INCLUDE(
